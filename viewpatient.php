@@ -139,7 +139,7 @@ if (isset($_POST['delete-patient'])) {
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Top bar -->
 	<div class="theme-d4 row" id="head">
 		<div style="background-color: #294257; width:81px; cursor: pointer;" onclick="menuChange(this); menuToggle();">
@@ -181,7 +181,7 @@ if (isset($_POST['delete-patient'])) {
 	<div id="sidebar" class="theme-d3">
 		<a class="side-item" href="admin.php"><em class="fa-solid fa-house"></em>Home</a>
 		<a class="side-item" href="patients.php"><em class="fa-solid fa-clipboard-user"></em>View Patients</a>
-		<a class="side-item" href=""><em class="fa-solid fa-book-medical"></em>Manage Accounts</a>
+		<a class="side-item" href="add-patient.php"><em class="fa-solid fa-book-medical"></em>Add A Patient</a>
 	</div>
 
 	<!-- Main body of page -->
@@ -189,7 +189,7 @@ if (isset($_POST['delete-patient'])) {
 		<div class="container">
 			<div class="row g-5">
 
-			<!-- Picture of patient -->
+				<!-- Picture of patient -->
 				<div class="col-sm container p-3 text-center">
 					<img src='images/default.jpg' alt='<?= $fname . " " . $lname; ?>' class="prof-pic img-thumbnail float-right">
 				</div>
@@ -242,4 +242,5 @@ if (isset($_POST['delete-patient'])) {
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
 	</script>
 </body>
+
 </html>
