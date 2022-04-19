@@ -1,0 +1,165 @@
+a {
+  text-decoration: none;
+}
+
+body {
+  background: -webkit-linear-gradient(bottom, #7ce6f7, #2e5cc1);
+  background-repeat: no-repeat;
+}
+
+label {
+  font-family: "Open Sans", sans-serif;
+  font-size: 13pt;
+  cursor: text;
+}
+
+#header {
+  color: #fff;
+}
+
+#forgot-pass {
+  color: #0096e7;
+  font-family: "Open Sans", sans-serif;
+  font-size: 10pt;
+  margin-top: 3px;
+  text-align: right;
+}
+
+#card {
+  background: #fbfbfb;
+  border-radius: 8px;
+  box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.65);
+  margin: 3.5% auto;
+  width: 329px;
+}
+
+#card-content {
+  padding: 10px 44px;
+}
+
+#card-title {
+  font-family: "Open Sans", sans-serif;
+  letter-spacing: 4px;
+  padding-bottom: 23px;
+  padding-top: 13px;
+  text-align: center;
+}
+
+#signup {
+  color: #0096e7;
+  font-family: "Open Sans", sans-serif;
+  font-size: 10pt;
+  margin-top: 16px;
+  text-align: center;
+}
+
+#submit-btn {
+  background: -webkit-linear-gradient(right, #7ce6f7, #2e5cc1);
+  border: none;
+  border-radius: 21px;
+  box-shadow: 0px 1px 8px rgba(#3e76bb, 0.72);
+  cursor: pointer;
+  color: white;
+  font-family: "Open Sans SemiBold", sans-serif;
+  height: 42.3px;
+  margin: auto;
+  margin-top: 30px;
+  transition: 0.25s;
+  width: 130px;
+  letter-spacing: 5px;
+}
+
+#submit-btn:hover {
+  box-shadow: 0px 1px 18px rgba(#85bbff, 0.72);
+}
+
+.form {
+  align-items: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-border {
+  background: -webkit-linear-gradient(right, #7ce6f7, #2e5cc1);
+  height: 1px;
+  width: 100%;
+}
+
+.form-content {
+  background: #fbfbfb;
+  border: none;
+  outline: none;
+  padding-top: 14px;
+}
+
+.underline-title {
+  background: -webkit-linear-gradient(right, #7ce6f7, #2e5cc1);
+  height: 2px;
+  margin: -0.5rem auto 0 auto;
+  width: 110px;
+}
+
+input {
+  font-size: 18px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.next {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  #card {
+    background: #fbfbfb;
+    border-radius: 8px;
+    box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.65);
+    margin: 50% auto;
+    width: 80%;
+  }
+
+  label {
+    font-size: 40px;
+  }
+
+  #submit-btn {
+    background: -webkit-linear-gradient(right, #7ce6f7, #2e5cc1);
+    border: none;
+    border-radius: 21px;
+    box-shadow: 0px 1px 8px rgba(#3e76bb, 0.72);
+    cursor: pointer;
+    color: white;
+    font-family: "Open Sans SemiBold", sans-serif;
+    height: 60px;
+    font-size: 30px;
+    margin: auto;
+    margin-top: 30px;
+    transition: 0.25s;
+    width: 300px;
+  }
+
+  #forgot-pass {
+    color: #0096e7;
+    font-family: "Open Sans", sans-serif;
+    font-size: 20pt;
+    margin-top: 3px;
+    text-align: right;
+  }
+
+  #signup {
+    color: #0096e7;
+    font-family: "Open Sans", sans-serif;
+    font-size: 20pt;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  #card-title {
+    font-family: "Open Sans", sans-serif;
+    font-size: 50pt;
+    letter-spacing: 4px;
+    padding-bottom: 23px;
+    padding-top: 13px;
+    text-align: center;
+  }
+
+}

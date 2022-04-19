@@ -1,0 +1,167 @@
+body {
+  height: calc(100% - 4.2em);
+}
+
+#head {
+  position: fixed;
+  width: 102%;
+  top: 0;
+}
+
+.title {
+  padding-left: 30px;
+}
+
+.menu-cont {
+  position: absolute;
+  top: 12px;
+  left: 28px;
+  height: 35px;
+  width: 35px;
+}
+
+.bar1, .bar2, .bar3 {
+  width: 35px;
+  height: 5px;
+  background-color: #fff;
+  margin: 6px 0;
+  transition: 0.4s;
+}
+
+.change .bar1 {
+  -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+  transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+.change .bar2 {opacity: 0;}
+
+.change .bar3 {
+  -webkit-transform: rotate(45deg) translate(-8px, -8px);
+  transform: rotate(45deg) translate(-8px, -8px);
+}
+
+.prof-btn {
+  float: right;
+  height: 4em;
+  width: 150px;
+  border: none;
+}
+
+#sidebar {
+  height: calc(100% - 4.2em);
+  top: 4.2em;
+  position: absolute;
+  left: -200px;
+  width: 200px;
+  transition: left 0.5s;
+  position: fixed;
+}
+
+.side-item {
+  font-size: 20px;
+  display: flex;
+  color: #fff;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 85px;;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.side-item:hover {
+  color: rgb(215, 215, 215);
+  background-color: #172531;
+}
+
+#main-text {
+  margin-left: 0px;
+  margin-top: 4.2em;
+  height: calc(100% - 4.2em);
+  transition: margin-left 0.5s;
+  padding: 20px;
+}
+
+.main-item {
+  border-radius: 5px;
+}
+
+.item {
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  width: 150px;
+  height: 50px;
+  padding: 10px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.item:hover {
+  color: rgb(215, 215, 215);
+  background-color: #172531;
+}
+
+.main-item {
+  padding: 15px;
+
+}
+
+#main-content {
+  height: 100%;
+}
+
+.sec {
+  height: 50%;
+}
+
+.car {
+  height: 60%;
+  width: 60%;
+}
+
+.prof-pic {
+  width: 80%;
+}
+
+#comm {
+  width: 100%;
+  height: 15em;
+  resize: none;
+}
+
+input {
+  float: right;
+  width: 8.5em;
+}
+
+label {
+  padding-bottom: 8px;
+  vertical-align: middle;
+}
+
+#account-form, #password-reset {
+  line-height: 3;
+}
+
+.card-header {
+  background-color: #fff;
+}
+
+tr {
+  cursor: pointer;
+}
+
+.info {
+  float: right;
+}
+
+textarea {
+  height: 150px;
+  resize: none;
+}
+
+.container {
+  border-radius: 10px;
+}
