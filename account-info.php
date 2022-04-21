@@ -174,7 +174,7 @@ if (isset($_POST['save-profile'])) {
 					$healthnum_valid = $inputvalid;
 				}
 			} else {
-				echo $alert;
+				echo $error;
 			}
 			// Close statement
 			unset($stmt);

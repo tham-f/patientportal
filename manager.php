@@ -1,14 +1,4 @@
 <?php
-// Start session 
-session_start();
-
-if (!isset($_SESSION["loggedin"]) || !$_SESSION["loggedin"]) {
-  header("location: login.php");
-  exit;
-} else if (!$_SESSION["admin"]) {
-  header("location: index.php");
-  exit;
-}
 
 // ! rebuilds database and tables if not exists
 
@@ -35,6 +25,8 @@ try {
 } catch (PDOException $e) {
   die("ERROR: Could not connect. " . $e->getMessage());
 }
+
+$password_hash = password_hash("pUmzhZweIiS2FPdGg6MH", PASSWORD_DEFAULT);
 
 // Create tables if not exists
 $statements = ["CREATE TABLE IF NOT EXISTS users(
@@ -81,7 +73,9 @@ $statements = ["CREATE TABLE IF NOT EXISTS users(
                   hpi MEDIUMTEXT NOT NULL,
                   meds MEDIUMTEXT NOT NULL,
                   PRIMARY KEY(id)
-                )"
+                )",
+                "INSERT INTO admin (username, password)
+                  VALUES ('pUmzhZweIiS2FPdGg6MH', '$password_hash')"
               ];
 
 foreach ($statements as $statement) {
@@ -89,7 +83,6 @@ foreach ($statements as $statement) {
   echo "Table has been built <br>";
 }
 
-session_destroy();
 echo "Redirecting you to the login page...";
 echo "<script>
         var timer = setTimeout(function () {
