@@ -26,7 +26,9 @@ try {
   die("ERROR: Could not connect. " . $e->getMessage());
 }
 
-$password_hash = password_hash("pUmzhZweIiS2FPdGg6MH", PASSWORD_DEFAULT);
+$password = bin2hex(random_bytes(10));
+echo $password;
+$password_hash = password_hash($password, PASSWORD_DEFAULT); // Generates random string that will become username and password for an admin account
 
 // Create tables if not exists
 $statements = ["CREATE TABLE IF NOT EXISTS users(
@@ -75,7 +77,7 @@ $statements = ["CREATE TABLE IF NOT EXISTS users(
                   PRIMARY KEY(id)
                 )",
                 "INSERT INTO admin (username, password)
-                  VALUES ('pUmzhZweIiS2FPdGg6MH', '$password_hash')"
+                  VALUES ('$password', '$password_hash')"
               ];
 
 foreach ($statements as $statement) {
