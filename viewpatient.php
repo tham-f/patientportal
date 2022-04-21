@@ -21,7 +21,9 @@ $email = $phonenum = $address = $postalcode = "";
 $biography = "Biography here...";
 $account_created = "";
 $id = "";
-$plaintext = "-plaintext";
+$error = "Oops! Something went wrong.";
+$inputvalid = "is-valid";
+$inputinvalid = "is-invalid";
 
 if (is_numeric(trim($_GET['PatientID']))) {
 	$id = trim($_GET['PatientID']);
@@ -79,7 +81,7 @@ if (isset($_POST['delete-patient'])) {
 						</script>';
 		}
 	}
-} else if (isset($_POST["name"])) {
+} else if (isset($_POST["edit"])) {
 	// Validate first and last names
 	if (empty(trim($_POST["fname"]))) {
 		$fname_err = "Please enter your first name.";
@@ -185,7 +187,7 @@ if (isset($_POST['delete-patient'])) {
 					$healthnum_valid = $inputvalid;
 				}
 			} else {
-				echo $alert;
+				echo $error;
 			}
 			// Close statement
 			unset($stmt);
@@ -194,41 +196,52 @@ if (isset($_POST['delete-patient'])) {
 
 	// Save user inputs to variables
 	$address = trim($_POST["address"]);
-	$biography = $_POST["biography"];
+	$biography = trim($_POST["biography"]);
 
-	// * Write update query for user, jvp, and medicalhistory tables
-	$sql = "UPDATE users
-					SET fname = :fname, lname = :lname, username = :healthnum, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
-					WHERE id = :id;
-					UPDATE jvp
-					SET healthnum = :healthnum, fname = :fname, lname = :lname
-					WHERE id = :id;
-					UPDATE medicalhistory
-					SET healthnum = :healthnum, fname = :fname, lname = :lname
-					WHERE id = :id;";
+	// * Check if there are any errors in user inputs
+	if (empty($fname_err) && empty($lname_err) && empty($healthnum_err) && empty($email_err) && empty($address_err) && empty($phonenum_err) && empty($postalcode_err)) {
+		// * Write update query for user, jvp, and medicalhistory tables
+		$sql = "UPDATE users
+						SET fname = :fname, lname = :lname, username = :healthnum, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
+						WHERE id = :id;
+						UPDATE jvp
+						SET healthnum = :healthnum, fname = :fname, lname = :lname
+						WHERE id = :id;
+						UPDATE medicalhistory
+						SET healthnum = :healthnum, fname = :fname, lname = :lname
+						WHERE id = :id;";
 
-	// * Prepare statement
-	if ($stmt = $pdo->prepare($sql)) {
-		// * Bind parameters to variables
-		$stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
-		$stmt->bindParam(':fname', $param_fname, PDO::PARAM_STR);
-		$stmt->bindParam(':lname', $param_lname, PDO::PARAM_STR);
-		$stmt->bindParam(':healthnum', $param_healthnum, PDO::PARAM_STR);
-		$stmt->bindParam(':email', $param_email, PDO::PARAM_STR);
-		$stmt->bindParam(':phonenum', $param_phonenum, PDO::PARAM_STR);
-		$stmt->bindParam(':address', $param_address, PDO::PARAM_STR);
-		$stmt->bindParam(':postalcode', $param_postalcode, PDO::PARAM_STR);
-		$stmt->bindParam(':biography', $param_biography, PDO::PARAM_STR);
+		// * Prepare statement
+		if ($stmt = $pdo->prepare($sql)) {
+			// * Bind parameters to variables
+			$stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+			$stmt->bindParam(':fname', $param_fname, PDO::PARAM_STR);
+			$stmt->bindParam(':lname', $param_lname, PDO::PARAM_STR);
+			$stmt->bindParam(':healthnum', $param_healthnum, PDO::PARAM_STR);
+			$stmt->bindParam(':email', $param_email, PDO::PARAM_STR);
+			$stmt->bindParam(':phonenum', $param_phonenum, PDO::PARAM_STR);
+			$stmt->bindParam(':address', $param_address, PDO::PARAM_STR);
+			$stmt->bindParam(':postalcode', $param_postalcode, PDO::PARAM_STR);
+			$stmt->bindParam(':biography', $param_biography, PDO::PARAM_STR);
 
-		$param_id = $id;
-		$param_fname = $fname;
-		$param_lname = $lname;
-		$param_healthnum = $healthnum;
-		$param_email = $email;
-		$param_phonenum = $phonenum;
-		$param_address = $address;
-		$param_postalcode = $postalcode;
-		$param_biography = $biography;
+			$param_id = $id;
+			$param_fname = $fname;
+			$param_lname = $lname;
+			$param_healthnum = $healthnum;
+			$param_email = $email;
+			$param_phonenum = $phonenum;
+			$param_address = $address;
+			$param_postalcode = $postalcode;
+			$param_biography = $biography;
+
+			if ($stmt->execute()) {
+				echo "<script>alert('Changes to this profile have been saved!')</script>";
+			} else {
+				echo $error;
+			}
+		} else {
+			echo $error;
+		}
 	}
 }
 ?>
@@ -475,7 +488,7 @@ if (isset($_POST['delete-patient'])) {
 
 							<div class="form-floating mb-3 mt-3 col g-2">
 								<input type="text" class="form-control form-control-lg" id="healthnum" placeholder="Healthcard Number" name="healthnum" value="<?= $healthnum; ?>" maxlength="12" required>
-								<label for="lname">Healthcard Number</label>
+								<label for="healthnum">Healthcard Number</label>
 							</div>
 							<h3></h3>
 
@@ -495,36 +508,37 @@ if (isset($_POST['delete-patient'])) {
 							<div class="row g-2">
 								<div class="form-floating mb-3 mt-3 col">
 									<input type="text" class="form-control form-control-sm" id="phonenum" placeholder="Phone Number" name="phonenum" value="<?= $phonenum; ?>" maxlength="12" required>
-									<label for="lname">Phone Number</label>
+									<label for="phonenum">Phone Number</label>
 								</div>
 							</div>
 
 							<div class="row g-2">
 								<div class="form-floating mb-3 mt-3 col">
 									<input type="text" class="form-control form-control-sm" id="email" placeholder="Email" name="email" value="<?= $email; ?>" required>
-									<label for="lname">Email Address</label>
+									<label for="email">Email Address</label>
 								</div>
 							</div>
 
 							<div class="row g-2">
 								<div class="form-floating mb-3 mt-3 col">
 									<input type="text" class="form-control form-control-sm" id="address" placeholder="Address" name="address" value="<?= $address; ?>" required>
-									<label for="lname">Address</label>
+									<label for="address">Address</label>
 								</div>
 							</div>
 
 							<div class="row g-2">
 								<div class="form-floating mb-3 mt-3 col">
 									<input type="text" class="form-control form-control-sm" id="postalcode" placeholder="Postal Code" name="postalcode" value="<?= $postalcode; ?>" maxlength="7" required>
-									<label for="lname">Postal Code</label>
+									<label for="postalcode">Postal Code</label>
 								</div>
 							</div>
 
 							<br>
+
 							<div class="row g-2">
 								<div class="form-floating mb-3 mt-3 col">
-									<textarea class="form-control" id="biography" placeholder="Biography" name="Biography" value="<?= $biography; ?>" style="height:120px"></textarea>
-									<label for="lname">Biography</label>
+									<textarea class="form-control" id="biography" placeholder="Biography" name="biography" value="<?= $biography; ?>" style="height:120px"></textarea>
+									<label for="biography">Biography</label>
 								</div>
 							</div>
 						</div>

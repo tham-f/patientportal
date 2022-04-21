@@ -34,6 +34,7 @@ if ($stmt = $pdo->prepare($select)) {
 					$_SESSION["id"] = $id;
 					$_SESSION["username"] = $username;
 					$_SESSION["admin"] = true;
+					$_SESSION["adminaccess"] = true;
 
 					// Redirect user to admin page
 					header("location: admin.php");

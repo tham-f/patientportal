@@ -11,6 +11,8 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
   exit;
 }
 
+session_destroy();
+
 // Include config file
 require_once "config.php";
 

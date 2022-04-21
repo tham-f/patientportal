@@ -7,6 +7,12 @@ session_start();
 // Include config file
 require_once "config.php";
 
+if (!isset($_SESSION['adminaccess']) || !$_SESSION['adminaccess']) {
+	header('Location: request-admin.php');
+} else if (!$_SESSION['adminaccess']) {
+	header('Location: index.php');
+}
+
 // Declare variables 
 $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = "";
@@ -32,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 			// Attempt to execute the prepared statement
 			if ($stmt->execute()) {
-				if ($stmt->rowCount() == 1) {
+				if ($stmt->rowCount() > 0) {
 					$username_err = "An account with this username already exists.";
 				} else {
 					$username = trim($_POST["username"]);
@@ -85,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			if ($stmt->execute()) {
 				// Redirect to login page
 				header('location: login.php');
+				session_destroy();
 			} else {
 				echo $error_msg;
 			}
@@ -111,10 +118,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="theme.css">
 	<script type="text/javascript" src="animations.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<style>
 		html,
 		body,
@@ -141,19 +148,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 					<div class="underline-title"></div>
 				</div>
 
-				<?php
-				if (!empty($login_err)) {
-					echo '<div class="alert alert-danger">' . $login_err . '</div>';
-				}
-				?>
-
 				<form method="post" class="form" id="login" action="<?= htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 					<label style="padding-top:13px">
 						&nbsp;Username
 					</label>
 					<input id="username" class="form-content
-                        <?= (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?= $username; ?>"
-						type="text" name="username" required>
+                        <?= (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?= $username; ?>" type="text" name="username" required>
 					<span class="invalid-feedback"><?= $username_err; ?></span>
 					<div class="form-border"></div>
 
@@ -161,8 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						&nbsp;Password
 					</label>
 					<input id="password" class="form-content
-                        <?= (!empty($password_err)) ? 'is-invalid' : ''; ?>" type="password" name="password"
-						required>
+                        <?= (!empty($password_err)) ? 'is-invalid' : ''; ?>" type="password" name="password" required>
 					<span class="invalid-feedback"><?= $password_err; ?></span>
 					<div class="form-border"></div>
 
@@ -170,8 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						&nbsp;Confirm Password
 					</label>
 					<input id="confirmpassword" class="form-content
-                        <?= (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" type="password"
-						name="confirmpassword" required>
+                        <?= (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" type="password" name="confirmpassword" required>
 					<span class="invalid-feedback"><?= $confirm_password_err; ?></span>
 					<div class="form-border"></div>
 
@@ -184,5 +182,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			</div>
 		</div>
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+	</script>
 </body>
+
 </html>
