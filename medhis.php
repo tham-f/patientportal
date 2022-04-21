@@ -17,12 +17,11 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 $fname = $lname = $name = "";
 $cc = $card = $pmh = $rf = "";
 $cc_err = $card_err = $pmh_err = $rf_err = "";
-$id = htmlspecialchars($_SESSION["id"]);
-$healthnum = htmlspecialchars($_SESSION["username"]);
-$fname = htmlspecialchars($_SESSION["fname"]);
-$lname = htmlspecialchars($_SESSION["lname"]);
-$meds = "";
-$hpi = "";
+$id = htmlspecialchars(trim($_SESSION["id"]));
+$healthnum = htmlspecialchars(trim($_SESSION["username"]));
+$fname = htmlspecialchars(trim($_SESSION["fname"]));
+$lname = htmlspecialchars(trim($_SESSION["lname"]));
+$hpi = $meds = "";
 $alert_color = $alert = "";
 $alert_msg = "Oops! Something went wrong.";
 $numeric_err = "This value can only contain numbers.";
