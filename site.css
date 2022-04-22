@@ -78,6 +78,7 @@ body {
 }
 
 #main-text {
+  position: relative;
   margin-left: 0px;
   margin-top: 4.2em;
   height: calc(100% - 4.2em);

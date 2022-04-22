@@ -249,7 +249,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			<form id="jvp" class="g-2" method="post">
 				<div class="row">
 
-
 					<div class="col">
 						<label>cardiac history:
 							<input type="number" class="form-control" name="card" id="card" value="<?= $card ?>" min="0" required>
