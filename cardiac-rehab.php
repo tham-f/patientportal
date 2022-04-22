@@ -4,7 +4,8 @@ session_start();
 // Include config file
 require_once "config.php";
 
-// Check if the user is logged in, if not then redirect him to login page
+// * Check if the user is logged in, if not then redirect to login page
+// * Validate admin access
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
   header("location: login.php");
   exit;
@@ -12,28 +13,27 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
   header("location: admin.php");
   exit;
 }
-
 // Declare variables
-$fname = htmlspecialchars($_SESSION["fname"]);
-$lname = htmlspecialchars($_SESSION["lname"]);
-$name = $fname . " " . $lname;
-$hrt = $wgt = "";
-$hrt_err = $wgt_err = "";
-$id = htmlspecialchars($_SESSION["id"]);
-$comments = "";
-$healthnum = htmlspecialchars($_SESSION["username"]);
+$fname = $lname = $name = "";
+$cc = $card = $pmh = $rf = "";
+$cc_err = $card_err = $pmh_err = $rf_err = "";
+$id = htmlspecialchars(trim($_SESSION["id"]));
+$healthnum = htmlspecialchars(trim($_SESSION["username"]));
+$fname = htmlspecialchars(trim($_SESSION["fname"]));
+$lname = htmlspecialchars(trim($_SESSION["lname"]));
+$bday = $gender = "";
+$hpi = $meds = "";
 $alert_color = $alert = "";
 $alert_msg = "Oops! Something went wrong.";
 $numeric_err = "This value can only contain numbers.";
-$serialize_csv = "";
-$jvp = $jvp_err = "";
+$selected = " selected";
 
 // Write query to select JVP info for 
-$qry = "SELECT * FROM jvp WHERE id = :id";
+$qry = "SELECT * FROM medicalhistory WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-  // Bind healthcard number to parameter
-  $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+  // Bind id number to parameter
+  $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
 
   // Set parameters
   $param_id = $id;
@@ -41,10 +41,13 @@ if ($stmt = $pdo->prepare($qry)) {
   // Attempt to execute query
   if ($stmt->execute()) {
     $userdata = $stmt->fetch();
-    $wgt = $userdata['weight'] ?? "";
-    $hrt = $userdata['heartrate'] ?? "";
-    $comments = $userdata['comments'] ?? "";
-    $jvp = $userdata['jvp'] ?? "";
+    $name = $fname . " " . $lname;
+    $card = $userdata['card'] ?? "";
+    $cc = $userdata['chiefcomplaint'] ?? "";
+    $hpi = $userdata['hpi'] ?? "";
+    $rf = $userdata['riskfactors'] ?? "";
+    $pmh = $userdata['pmh'] ?? "";
+    $meds = $userdata['meds'] ?? "";
   } else {
     echo "Oops, something went wrong. Try again later.";
   }
@@ -67,64 +70,62 @@ if ($stmt = $pdo->prepare($qry)) {
 
 // Process form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Validate heart rate
-  if (empty(trim($_POST["hrt"]))) {
-    $hrt_err = "Please enter a heart rate value.";
-  } else if (!is_numeric($_POST["hrt"])) {
-    $hrt_err = $numeric_err;
+
+  // Validate input
+  if (empty(trim($_POST["card"]))) {
+    $card_err = "Please enter previous cardiac history.";
+  } else if (!is_numeric($_POST["card"])) {
+    $card_err = $numeric_err;
   } else {
-    $hrt = trim($_POST["hrt"]);
+    $card = trim($_POST["card"]);
   }
 
-  // Validate weight input
-  if (empty(trim($_POST["wgt"]))) {
-    $wgt_err = "Please enter a weight value.";
-  } else if (!is_numeric($_POST["wgt"])) {
-    $wgt_err = $numeric_err;
+  if (empty(trim($_POST["pmh"]))) {
+    $pmh_err = "Please enter a past medical history.";
+  } else if (!is_numeric($_POST["pmh"])) {
+    $pmh_err = $numeric_err;
   } else {
-    $wgt = trim($_POST["wgt"]);
+    $pmh = trim($_POST["pmh"]);
   }
 
-  if (empty(trim($_POST["jvp"]))) {
-    $jvp_err = "Please enter a jvp value.";
-  } else if (!is_numeric($_POST["jvp"])) {
-    $jvp_err = $numeric_err;
-  } else {
-    $jvp = trim($_POST["jvp"]);
-  }
-
-  $comments = trim($_POST["comments"]);
+  $hpi = trim($_POST["hpi"]);
+  $cc = trim($_POST["cc"]);
+  $rf = trim($_POST["rf"]);
 
   // Insert title of columns into csv array
   $csv_arr = array();
-  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'Weight', 'Heart Rate', 'JVP', 'Comments', 'Date Submitted');
-  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $wgt, $hrt, $jvp, $comments, date("Ymd"));
+  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI', 'Meds', 'Date Submitted');
+  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $cc, $card, $pmh, $rf, $hpi, $meds, date("Ymd"));
 
   // Prepare query statement to update JVP info in database
-  $sql = "INSERT INTO jvp (id, healthnum, fname, lname, weight, heartrate, jvp, comments)
-          VALUES (:id, :healthnum, :fname, :lname, :wgt, :hrt, :jvp, :comments)
+  $sql = "INSERT INTO medicalhistory (id, healthnum, fname, lname, chiefcomplaint, card, pmh, riskfactors, hpi, meds)
+          VALUES (:id, :healthnum, :fname, :lname, :cc, :card, :pmh, :rf, :hpi, :meds)
           ON DUPLICATE KEY UPDATE
-					healthnum = :healthnum, fname = :fname, lname = :lname, weight = :wgt, heartrate = :hrt, jvp = :jvp, comments = :comments";
+					healthnum = :healthnum, fname = :fname, lname = :lname, chiefcomplaint = :cc, card = :card, pmh = :pmh, riskfactors = :rf, hpi = :hpi, meds = :meds";
 
   if ($stmt = $pdo->prepare($sql)) {
     // Bind variables to parameters
-    $stmt->bindParam(":wgt", $param_wgt, PDO::PARAM_STR);
-    $stmt->bindParam(":hrt", $param_hrt, PDO::PARAM_INT);
-    $stmt->bindParam(":comments", $param_comments, PDO::PARAM_STR);
-    $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
-    $stmt->bindParam(":jvp", $param_jvp, PDO::PARAM_STR);
+    $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
     $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
     $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
-    $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+    $stmt->bindParam(":cc", $param_cc, PDO::PARAM_STR);
+    $stmt->bindParam(":card", $param_card, PDO::PARAM_INT);
+    $stmt->bindParam(":pmh", $param_pmh, PDO::PARAM_INT);
+    $stmt->bindParam(":rf", $param_rf, PDO::PARAM_STR);
+    $stmt->bindParam(":hpi", $param_hpi, PDO::PARAM_STR);
+    $stmt->bindParam(":meds", $param_meds, PDO::PARAM_STR);
+    $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
 
     // Set parameters
     $param_healthnum = $healthnum;
     $param_fname = $fname;
     $param_lname = $lname;
-    $param_wgt = $wgt;
-    $param_hrt = $hrt;
-    $param_comments = $comments;
-    $param_jvp = $jvp;
+    $param_cc = $cc;
+    $param_card = $card;
+    $param_pmh = $pmh;
+    $param_hpi = $hpi;
+    $param_rf = $rf;
+    $param_meds = $meds;
     $param_id = $id;
 
     // Attempt to execute query
@@ -135,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
       // Create .csv file, store in patientcsv folder
       $filename = $fname . $lname . ".csv";
-      $target_dir = "patientjvpcsv/";
+      $target_dir = "patientmedhis/";
       $target_file = $target_dir . $filename;
 
       $file = fopen($target_file, "w") or die("Unable to open file!");
@@ -191,7 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       font-family: 'Open Sans', sans-serif;
     }
   </style>
-  <title>Jugular Venous Pressure</title>
+  <title>Cardiac Rehab</title>
 </head>
 
 <body>
@@ -206,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <div class="title col">
-      <h1>Jugular Venous Pressure</h1>
+      <h1>Cardiac Rehab</h1>
     </div>
 
     <!-- Account dropdown -->
@@ -236,45 +237,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <div id="sidebar" class="theme-d3">
     <a class="side-item hover-theme" href="index.php"><em class="fa-solid fa-house"></em>Home</a>
     <a class="side-item hover-theme" href="medhis.php"><em class="fa-regular fa-heart"></em>Medical History</a>
-    <a class="side-item hover-theme"><em class="fa-solid fa-heart-pulse"></em>Jugular Venous Pressure</a>
+    <a class="side-item hover-theme" href="jvp.php"><em class="fa-solid fa-heart-pulse"></em>Jugular Venous Pressure</a>
     <a class="side-item hover-theme" href="contact-info.php"><em class="fa-solid fa-phone"></em>Contact Us</a>
-    <a class="side-item hover-theme" href="cardiac-rehab.php"><em class="fa-solid fa-hand-holding-heart"></em>Cardiac Rehab</a>
+    <a class="side-item hover-theme"><em class="fa-solid fa-hand-holding-heart"></em>Cardiac Rehab</a>
   </div>
 
   <!-- Main body of page -->
   <div id="main-text">
     <div class="p-3 container border">
       <h2>Welcome, <?= $name . " (" . $healthnum . ")" ?>.</h2>
-      <form id="jvp-form" class="g-2" method="post">
+      <form id="jvp" class="g-2" method="post">
         <div class="row">
+
+
           <div class="col">
-            <label>Heart Rate:
-              <input type="number" class="form-control" name="hrt" id="hrt" value="<?= $hrt ?>" min="0" required>
+            <label>cardiac history:
+              <input type="number" class="form-control" name="card" id="card" value="<?= $card ?>" min="0" required>
             </label>
           </div>
 
           <div class="col">
-            <label>Weight (kg):
-              <input type="number" class="form-control" name="wgt" id="wgt" value="<?= $wgt ?>" min="0" required>
+            <label>past medical history:
+              <input type="number" class="form-control" name="pmh" id="pmh" value="<?= $pmh ?>" min="0" required>
             </label>
           </div>
+
+          <div class="col">
+            <label>risk factors:
+              <input type="number" class="form-control" id="rf" name="rf" value="<?= $rf ?>" required>
+            </label>
+          </div>
+
         </div>
 
         <div class="row">
-          <label class="col">Comments:
-            <textarea name="comments" class="form-control" id="comm"><?= $comments ?></textarea>
+          <label class="col">chief complaint:
+            <select name="cc" class="form-control" id="cc" required>
+              <option value="" <?= $cc == "" ? $selected : "" ?>></option>
+              <option value="Chest Pain" <?= $cc == "Chest Pain" ? $selected : "" ?>>Chest Pain</option>
+              <option value="Dyspnea" <?= $cc == "Dyspnea" ? $selected : "" ?>>Dyspnea</option>
+              <option value="Palpitation" <?= $cc == "Palpitation" ? $selected : "" ?>>Palpitation</option>
+              <option value="Pre-syncope" <?= $cc == "Pre-syncope" ? $selected : "" ?>>Pre-syncope</option>
+            </select>
           </label>
         </div>
 
         <div class="row">
-          <div class="col">
-            <label>JVP:
-              <input type="number" class="form-control" id="jvp" name="jvp" value="<?= $jvp ?>">
-            </label>
-          </div>
-
-          <div class="col">
-          </div>
+          <label class="col">HPI:
+            <textarea name="hpi" class="form-control" id="hpi"><?= $hpi ?></textarea>
+          </label>
         </div>
 
         <div class="row">
@@ -284,6 +295,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           <div class="col">
             <button type="reset" class="btn btn-secondary" id="reset">RESET</button>
+          </div>
+        </div>
+
+        <br>
+        <div class="row">
+          <div class="col">
           </div>
         </div>
       </form>

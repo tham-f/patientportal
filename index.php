@@ -71,8 +71,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
         </button>
         <ul class="dropdown-menu dropdown-menu-end theme-d3">
           <li>
-            <a class="dropdown-item item hover-theme" href="account-info.php" onmouseover="spin();"
-              onmouseout="spin();">
+            <a class="dropdown-item item hover-theme" href="account-info.php" onmouseover="spin();" onmouseout="spin();">
               <em class="fa-solid fa-gear" id="settings"></em>
               Update Profile
             </a>
@@ -92,6 +91,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     <a class="side-item hover-theme" href="medhis.php"><em class="fa-regular fa-heart"></em>Medical History</a>
     <a class="side-item hover-theme" href="jvp.php"><em class="fa-solid fa-heart-pulse"></em>Jugular Venous Pressure</a>
     <a class="side-item hover-theme" href="contact-info.php"><em class="fa-solid fa-phone"></em>Contact Us</a>
+    <a class="side-item hover-theme" href="cardiac-rehab.php"><em class="fa-solid fa-hand-holding-heart"></em>Cardiac Rehab</a>
   </div>
 
   <div id="main-text">
@@ -131,8 +131,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
       </div>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
   </script>
 </body>
 

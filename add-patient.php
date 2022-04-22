@@ -355,9 +355,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 
   <div id="sidebar" class="theme-d3">
-    <a class="side-item" href="admin.php"><em class="fa-solid fa-house"></em>Home</a>
-    <a class="side-item" href="patients.php"><em class="fa-solid fa-clipboard-user"></em>View Patients</a>
-    <a class="side-item"><em class="fa-solid fa-book-medical"></em>Add A Patient</a>
+    <a class="side-item hover-theme" href="admin.php"><em class="fa-solid fa-house"></em>Home</a>
+    <a class="side-item hover-theme" href="patients.php"><em class="fa-solid fa-clipboard-user"></em>View Patients</a>
+    <a class="side-item hover-theme"><em class="fa-solid fa-book-medical"></em>Add A Patient</a>
   </div>
 
   <div id="main-text">
