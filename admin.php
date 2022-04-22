@@ -91,16 +91,17 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     <a class="side-item hover-theme"><em class="fa-solid fa-house"></em>Home</a>
     <a class="side-item hover-theme" href="patients.php"><em class="fa-solid fa-clipboard-user"></em>View Patients</a>
     <a class="side-item hover-theme" href="add-patient.php"><em class="fa-solid fa-book-medical"></em>Add A Patient</a>
+    <a class="side-item hover-theme" href="create-admin.php">Add an Admin Account</a>
   </div>
 
-  <div id="main-text">
-    <div class="container">
-      <h1 class="text-center">Admin Home</h1>
+      <div id="main-text">
+        <div class="container">
+          <h1 class="text-center">Admin Home</h1>
 
-    </div>
-  </div>]
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-  </script>
+        </div>
+      </div>]
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+      </script>
 
 </body>
 

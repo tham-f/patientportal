@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Insert title of columns into csv array
   $csv_arr = array();
   $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'Weight', 'Heart Rate', 'JVP', 'Comments', 'Date Submitted');
-  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $wgt, $hrt, $jvp, $comments, date("Ymd"));
+  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), ($gender == "male" ? "M" : "F"), $wgt, $hrt, $jvp, $comments, date("Ymd"));
 
   // Prepare query statement to update JVP info in database
   $sql = "INSERT INTO jvp (id, healthnum, fname, lname, weight, heartrate, jvp, comments)
