@@ -1,104 +1,104 @@
 <!-- Form to create a new admin account -->
 
 <?php
-// Initialize the session 
+// Initialize the session
 session_start();
 
 // Include config file
 require_once "config.php";
 
 if (!isset($_SESSION['adminaccess']) || !$_SESSION['adminaccess']) {
-	header('Location: request-admin.php');
-} else if (!$_SESSION['adminaccess']) {
-	header('Location: index.php');
+    header('Location: request-admin.php');
+} elseif (!$_SESSION['adminaccess']) {
+    header('Location: index.php');
 }
 
-// Declare variables 
+// Declare variables
 $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = "";
 $error_msg = "Oops! Something went wrong. Please try again.";
 
 // Carry out action when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	// Validate username
-	if (empty(trim($_POST['username']))) {
-		$username_err = "Please enter a username.";
-	} elseif (!preg_match('/^[a-zA-Z0-9]+$/', trim($_POST["username"]))) {
-		$username_err = "Username can only contain letters and numbers.";
-	} else {
-		// Prepare a select statement
-		$sql = "SELECT id FROM admin WHERE username = :username";
+    // Validate username
+    if (empty(trim($_POST['username']))) {
+        $username_err = "Please enter a username.";
+    } elseif (!preg_match('/^[a-zA-Z0-9]+$/', trim($_POST["username"]))) {
+        $username_err = "Username can only contain letters and numbers.";
+    } else {
+        // Prepare a select statement
+        $sql = "SELECT id FROM admin WHERE username = :username";
 
-		if ($stmt = $pdo->prepare($sql)) {
-			// Bind variables to the prepared statement as parameters
-			$stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to the prepared statement as parameters
+            $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
 
-			// Set parameters
-			$param_username = trim($_POST["username"]);
+            // Set parameters
+            $param_username = trim($_POST["username"]);
 
-			// Attempt to execute the prepared statement
-			if ($stmt->execute()) {
-				if ($stmt->rowCount() > 0) {
-					$username_err = "An account with this username already exists.";
-				} else {
-					$username = trim($_POST["username"]);
-				}
-			} else {
-				echo $alert;
-			}
+            // Attempt to execute the prepared statement
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    $username_err = "An account with this username already exists.";
+                } else {
+                    $username = trim($_POST["username"]);
+                }
+            } else {
+                echo $alert;
+            }
 
-			// Close statement
-			unset($stmt);
-			unset($sql);
-		}
-	}
+            // Close statement
+            unset($stmt);
+            unset($sql);
+        }
+    }
 
-	// Validate password
-	if (empty(trim($_POST['password']))) {
-		$password_err = "Please enter a password.";
-	} elseif (strlen(trim($_POST['password'])) < 6) {
-		$password_err = "Password must be at least 6 characters.";
-	} else {
-		$password = trim($_POST['password']);
-	}
+    // Validate password
+    if (empty(trim($_POST['password']))) {
+        $password_err = "Please enter a password.";
+    } elseif (strlen(trim($_POST['password'])) < 6) {
+        $password_err = "Password must be at least 6 characters.";
+    } else {
+        $password = trim($_POST['password']);
+    }
 
-	// Validate confirm password
-	if (empty(trim($_POST["confirmpassword"]))) {
-		$confirm_password_err = "Please confirm password.";
-	} else {
-		$confirm_password = trim($_POST["confirmpassword"]);
-		if (empty($password_err) && ($password != $confirm_password)) {
-			$confirm_password_err = "Password did not match.";
-		}
-	}
+    // Validate confirm password
+    if (empty(trim($_POST["confirmpassword"]))) {
+        $confirm_password_err = "Please confirm password.";
+    } else {
+        $confirm_password = trim($_POST["confirmpassword"]);
+        if (empty($password_err) && ($password != $confirm_password)) {
+            $confirm_password_err = "Password did not match.";
+        }
+    }
 
-	// Check input errors before inserting in database
-	if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
-		// Prepare insert statement
-		$sql = "INSERT INTO admin (username, password)
+    // Check input errors before inserting in database
+    if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
+        // Prepare insert statement
+        $sql = "INSERT INTO admin (username, password)
 						VALUES (:username, :password)";
 
-		if ($stmt = $pdo->prepare($sql)) {
-			// Bind variables to parameters
-			$stmt->bindParam(':username', $param_username, PDO::PARAM_STR);
-			$stmt->bindParam(':password', $param_password, PDO::PARAM_STR);
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to parameters
+            $stmt->bindParam(':username', $param_username, PDO::PARAM_STR);
+            $stmt->bindParam(':password', $param_password, PDO::PARAM_STR);
 
-			// Give values to parameters
-			$param_username = $username;
-			$param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
+            // Give values to parameters
+            $param_username = $username;
+            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
 
-			// Attempt to execute query
-			if ($stmt->execute()) {
-				// Redirect to login page
-				header('location: login.php');
-				session_destroy();
-			} else {
-				echo $error_msg;
-			}
-		} else {
-			echo $error_msg;
-		}
-	}
+            // Attempt to execute query
+            if ($stmt->execute()) {
+                // Redirect to login page
+                header('location: login.php');
+                session_destroy();
+            } else {
+                echo $error_msg;
+            }
+        } else {
+            echo $error_msg;
+        }
+    }
 }
 ?>
 

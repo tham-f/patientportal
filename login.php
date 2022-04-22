@@ -4,11 +4,11 @@ session_start();
 
 // Check if the user is already logged in, if yes then redirect him to welcome page
 if (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
-  header("location: admin.php");
-  exit;
-} else if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
-  header("location: index.php");
-  exit;
+    header("location: admin.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
+    header("location: index.php");
+    exit;
 }
 
 session_destroy();
@@ -24,76 +24,76 @@ $username_err = $password_err = $login_err = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Check if username is empty
-  if (empty(trim($_POST["username"]))) {
-    $username_err = "Please enter health card number.";
-  } else {
-    $username = trim($_POST["username"]);
-  }
-
-  // Check if password is empty
-  if (empty(trim($_POST["password"]))) {
-    $password_err = "Please enter your password.";
-  } else {
-    $password = trim($_POST["password"]);
-  }
-
-  if (strlen($username) < 12) {
-    $username_err = "Health card number is not complete!";
-  } else if (empty($username_err) && empty($password_err)) {
-    // Prepare a select statement
-    $sql = "SELECT * FROM users WHERE username = :username";
-
-    if ($stmt = $pdo->prepare($sql)) {
-      // Bind variables to the prepared statement as parameters
-      $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
-
-      // Set parameters
-      $param_username = trim($_POST["username"]);
-
-      // Attempt to execute the prepared statement
-      if ($stmt->execute()) {
-        // Check if username exists, if yes then verify password
-        if ($stmt->rowCount() == 1) {
-          if ($row = $stmt->fetchAll()) {
-            $id = $row[0]["id"];
-            $username = $row[0]["username"];
-            $fname = $row[0]["fname"];
-            $lname = $row[0]["lname"];
-            $hashed_password = $row[0]["PASSWORD"];
-            if (password_verify($password, $hashed_password)) {
-              // Password is correct, so start a new session
-              session_start();
-
-              // Store data in session variables
-              $_SESSION["loggedin"] = true;
-              $_SESSION["id"] = $id;
-              $_SESSION["username"] = $username;
-              $_SESSION["admin"] = false;
-              $_SESSION["fname"] = $fname;
-              $_SESSION["lname"] = $lname;
-
-              // Redirect user to welcome page
-              header("location: index.php");
-            } else {
-              // Password is not valid, display a generic error message
-              $login_err = "Invalid healthcard number or password!";
-            }
-          }
-        } else {
-          // username doesn't exist, display a generic error message
-          $login_err = "Invalid healthcard number or password!";
-        }
-      } else {
-        echo "Oops! Something went wrong. Please try again later.";
-      }
-
-      // Close statement
-      unset($stmt);
+    if (empty(trim($_POST["username"]))) {
+        $username_err = "Please enter health card number.";
+    } else {
+        $username = trim($_POST["username"]);
     }
-  }
 
-  // Close connection
-  unset($pdo);
+    // Check if password is empty
+    if (empty(trim($_POST["password"]))) {
+        $password_err = "Please enter your password.";
+    } else {
+        $password = trim($_POST["password"]);
+    }
+
+    if (strlen($username) < 12) {
+        $username_err = "Health card number is not complete!";
+    } elseif (empty($username_err) && empty($password_err)) {
+        // Prepare a select statement
+        $sql = "SELECT * FROM users WHERE username = :username";
+
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to the prepared statement as parameters
+            $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
+
+            // Set parameters
+            $param_username = trim($_POST["username"]);
+
+            // Attempt to execute the prepared statement
+            if ($stmt->execute()) {
+                // Check if username exists, if yes then verify password
+                if ($stmt->rowCount() == 1) {
+                    if ($row = $stmt->fetchAll()) {
+                        $id = $row[0]["id"];
+                        $username = $row[0]["username"];
+                        $fname = $row[0]["fname"];
+                        $lname = $row[0]["lname"];
+                        $hashed_password = $row[0]["PASSWORD"];
+                        if (password_verify($password, $hashed_password)) {
+                            // Password is correct, so start a new session
+                            session_start();
+
+                            // Store data in session variables
+                            $_SESSION["loggedin"] = true;
+                            $_SESSION["id"] = $id;
+                            $_SESSION["username"] = $username;
+                            $_SESSION["admin"] = false;
+                            $_SESSION["fname"] = $fname;
+                            $_SESSION["lname"] = $lname;
+
+                            // Redirect user to welcome page
+                            header("location: index.php");
+                        } else {
+                            // Password is not valid, display a generic error message
+                            $login_err = "Invalid healthcard number or password!";
+                        }
+                    }
+                } else {
+                    // username doesn't exist, display a generic error message
+                    $login_err = "Invalid healthcard number or password!";
+                }
+            } else {
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+
+            // Close statement
+            unset($stmt);
+        }
+    }
+
+    // Close connection
+    unset($pdo);
 }
 ?>
 
@@ -224,7 +224,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <?php
         if (!empty($login_err)) {
-          echo '<div class="alert alert-danger">' . $login_err . '</div>';
+            echo '<div class="alert alert-danger">' . $login_err . '</div>';
         }
         ?>
 

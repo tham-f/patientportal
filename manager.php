@@ -19,11 +19,11 @@ $pdo->query("use " . DB_NAME); //
 
 /* Attempt to connect to database */
 try {
-  $pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
-  // Set the PDO error mode to exception
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
+    // Set the PDO error mode to exception
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-  die("ERROR: Could not connect. " . $e->getMessage());
+    die("ERROR: Could not connect. " . $e->getMessage());
 }
 
 $password = bin2hex(random_bytes(10));
@@ -83,8 +83,8 @@ $statements = ["CREATE TABLE IF NOT EXISTS users(
               ];
 
 foreach ($statements as $statement) {
-  $pdo->exec($statement);
-  echo "Table has been built <br>";
+    $pdo->exec($statement);
+    echo "Table has been built <br>";
 }
 
 echo "Redirecting you to the login page...";
@@ -94,4 +94,3 @@ echo "<script>
         }, 3000);
       </script>";
 $pdo = null;
-?>

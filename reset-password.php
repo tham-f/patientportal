@@ -14,61 +14,62 @@ $email = $healthnum = "";
 
 // Process form data when submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $healthnum = trim($_POST["healthnum"]);
-  $email = trim($_POST["email"]);
+    $healthnum = trim($_POST["healthnum"]);
+    $email = trim($_POST["email"]);
 
-  // * Check if email and healthcard number exist and are of same user
+    // * Check if email and healthcard number exist and are of same user
 
-  // Prepare sql update query
-  $query = "SELECT * FROM users WHERE username = :healthnum AND email = :email";
+    // Prepare sql update query
+    $query = "SELECT * FROM users WHERE username = :healthnum AND email = :email";
 
-  if ($stmt = $pdo->prepare($query)) {
-    // Bind paramters to prepared statement
-    $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
-    $stmt->bindParam(":email", $param_email, PDO::PARAM_STR);
+    if ($stmt = $pdo->prepare($query)) {
+        // Bind paramters to prepared statement
+        $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+        $stmt->bindParam(":email", $param_email, PDO::PARAM_STR);
 
-    // Set parameters
-    $param_healthnum = $healthnum;
-    $param_email = $email;
+        // Set parameters
+        $param_healthnum = $healthnum;
+        $param_email = $email;
 
-    // Attempt to execute statement
-    if ($stmt->execute()) {
-      // Check if row exists
-      if ($stmt->rowCount() > 0) {
-        // Row exists
-        // Fetch healthcard number and email
-        $userdata = $stmt->fetchAll();
-        $var_healthnum = $userdata[0]["username"];
-        $var_email = $userdata[0]["email"];
-        $temp_pass = bin2hex(random_bytes(10));
-        $hash_pass = password_hash($temp_pass, PASSWORD_DEFAULT);
+        // Attempt to execute statement
+        if ($stmt->execute()) {
+            // Check if row exists
+            if ($stmt->rowCount() > 0) {
+                // Row exists
+                // Fetch healthcard number and email
+                $userdata = $stmt->fetchAll();
+                $var_healthnum = $userdata[0]["username"];
+                $var_email = $userdata[0]["email"];
+                $temp_pass = bin2hex(random_bytes(10));
+                $hash_pass = password_hash($temp_pass, PASSWORD_DEFAULT);
 
-        // Send email to user with a temporary password
-        mail($var_email, 
-            "Patient Portal Password Reset", 
-            "You have recently requested a password reset. \n
+                // Send email to user with a temporary password
+                mail(
+                    $var_email,
+                    "Patient Portal Password Reset",
+                    "You have recently requested a password reset. \n
              Your temporary password is : " . $temp_pass
-            );
+                );
 
-        // Write query to update password to temp password
-        $qry = "UPDATE users
+                // Write query to update password to temp password
+                $qry = "UPDATE users
                 SET password = '$hash_pass'
                 WHERE username = '$var_healthnum'";
         
-        // Execute query
-        $stmt = $pdo->prepare($qry);
-        $stmt->execute();
-      } else {
-        //
-      }
-    } else {
-      echo "Oops! Something went wrong. Please try again later.";
-    }
+                // Execute query
+                $stmt = $pdo->prepare($qry);
+                $stmt->execute();
+            } else {
+                //
+            }
+        } else {
+            echo "Oops! Something went wrong. Please try again later.";
+        }
 
-    // Close statement
-    unset($stmt);
-  }
-  unset($pdo);
+        // Close statement
+        unset($stmt);
+    }
+    unset($pdo);
 }
 ?>
 

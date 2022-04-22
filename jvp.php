@@ -6,11 +6,11 @@ require_once "config.php";
 
 // Check if the user is logged in, if not then redirect him to login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-  header("location: login.php");
-  exit;
-} else if (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
-  header("location: admin.php");
-  exit;
+    header("location: login.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
+    header("location: admin.php");
+    exit;
 }
 
 // Declare variables
@@ -28,132 +28,132 @@ $numeric_err = "This value can only contain numbers.";
 $serialize_csv = "";
 $jvp = $jvp_err = "";
 
-// Write query to select JVP info for 
+// Write query to select JVP info for
 $qry = "SELECT * FROM jvp WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-  // Bind healthcard number to parameter
-  $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+    // Bind healthcard number to parameter
+    $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
 
-  // Set parameters
-  $param_id = $id;
+    // Set parameters
+    $param_id = $id;
 
-  // Attempt to execute query
-  if ($stmt->execute()) {
-    $userdata = $stmt->fetch();
-    $wgt = $userdata['weight'] ?? "";
-    $hrt = $userdata['heartrate'] ?? "";
-    $comments = $userdata['comments'] ?? "";
-    $jvp = $userdata['jvp'] ?? "";
-  } else {
-    echo "Oops, something went wrong. Try again later.";
-  }
-  unset($stmt);
+    // Attempt to execute query
+    if ($stmt->execute()) {
+        $userdata = $stmt->fetch();
+        $wgt = $userdata['weight'] ?? "";
+        $hrt = $userdata['heartrate'] ?? "";
+        $comments = $userdata['comments'] ?? "";
+        $jvp = $userdata['jvp'] ?? "";
+    } else {
+        echo "Oops, something went wrong. Try again later.";
+    }
+    unset($stmt);
 }
 
 // Write query to fetch data from users table
 $qry = "SELECT * FROM users WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-  // Bind id number to parameter 
-  $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+    // Bind id number to parameter
+    $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
 
-  // Attempt to execute query
-  if ($stmt->execute()) {
-    $userdata = $stmt->fetch();
-    $bday = $userdata['birthdate'];
-    $gender = $userdata['gender'];
-  }
+    // Attempt to execute query
+    if ($stmt->execute()) {
+        $userdata = $stmt->fetch();
+        $bday = $userdata['birthdate'];
+        $gender = $userdata['gender'];
+    }
 }
 
 // Process form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Validate heart rate
-  if (empty(trim($_POST["hrt"]))) {
-    $hrt_err = "Please enter a heart rate value.";
-  } else if (!is_numeric($_POST["hrt"])) {
-    $hrt_err = $numeric_err;
-  } else {
-    $hrt = trim($_POST["hrt"]);
-  }
+    // Validate heart rate
+    if (empty(trim($_POST["hrt"]))) {
+        $hrt_err = "Please enter a heart rate value.";
+    } elseif (!is_numeric($_POST["hrt"])) {
+        $hrt_err = $numeric_err;
+    } else {
+        $hrt = trim($_POST["hrt"]);
+    }
 
-  // Validate weight input
-  if (empty(trim($_POST["wgt"]))) {
-    $wgt_err = "Please enter a weight value.";
-  } else if (!is_numeric($_POST["wgt"])) {
-    $wgt_err = $numeric_err;
-  } else {
-    $wgt = trim($_POST["wgt"]);
-  }
+    // Validate weight input
+    if (empty(trim($_POST["wgt"]))) {
+        $wgt_err = "Please enter a weight value.";
+    } elseif (!is_numeric($_POST["wgt"])) {
+        $wgt_err = $numeric_err;
+    } else {
+        $wgt = trim($_POST["wgt"]);
+    }
 
-  if (empty(trim($_POST["jvp"]))) {
-    $jvp_err = "Please enter a jvp value.";
-  } else if (!is_numeric($_POST["jvp"])) {
-    $jvp_err = $numeric_err;
-  } else {
-    $jvp = trim($_POST["jvp"]);
-  }
+    if (empty(trim($_POST["jvp"]))) {
+        $jvp_err = "Please enter a jvp value.";
+    } elseif (!is_numeric($_POST["jvp"])) {
+        $jvp_err = $numeric_err;
+    } else {
+        $jvp = trim($_POST["jvp"]);
+    }
 
-  $comments = trim($_POST["comments"]);
+    $comments = trim($_POST["comments"]);
 
-  // Insert title of columns into csv array
-  $csv_arr = array();
-  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'Weight', 'Heart Rate', 'JVP', 'Comments', 'Date Submitted');
-  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), ($gender == "male" ? "M" : "F"), $wgt, $hrt, $jvp, $comments, date("Ymd"));
+    // Insert title of columns into csv array
+    $csv_arr = array();
+    $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'Weight', 'Heart Rate', 'JVP', 'Comments', 'Date Submitted');
+    $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), ($gender == "male" ? "M" : "F"), $wgt, $hrt, $jvp, $comments, date("Ymd"));
 
-  // Prepare query statement to update JVP info in database
-  $sql = "INSERT INTO jvp (id, healthnum, fname, lname, weight, heartrate, jvp, comments)
+    // Prepare query statement to update JVP info in database
+    $sql = "INSERT INTO jvp (id, healthnum, fname, lname, weight, heartrate, jvp, comments)
           VALUES (:id, :healthnum, :fname, :lname, :wgt, :hrt, :jvp, :comments)
           ON DUPLICATE KEY UPDATE
 					healthnum = :healthnum, fname = :fname, lname = :lname, weight = :wgt, heartrate = :hrt, jvp = :jvp, comments = :comments";
 
-  if ($stmt = $pdo->prepare($sql)) {
-    // Bind variables to parameters
-    $stmt->bindParam(":wgt", $param_wgt, PDO::PARAM_STR);
-    $stmt->bindParam(":hrt", $param_hrt, PDO::PARAM_INT);
-    $stmt->bindParam(":comments", $param_comments, PDO::PARAM_STR);
-    $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
-    $stmt->bindParam(":jvp", $param_jvp, PDO::PARAM_STR);
-    $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
-    $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
-    $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+    if ($stmt = $pdo->prepare($sql)) {
+        // Bind variables to parameters
+        $stmt->bindParam(":wgt", $param_wgt, PDO::PARAM_STR);
+        $stmt->bindParam(":hrt", $param_hrt, PDO::PARAM_INT);
+        $stmt->bindParam(":comments", $param_comments, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+        $stmt->bindParam(":jvp", $param_jvp, PDO::PARAM_STR);
+        $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
+        $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
+        $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
 
-    // Set parameters
-    $param_healthnum = $healthnum;
-    $param_fname = $fname;
-    $param_lname = $lname;
-    $param_wgt = $wgt;
-    $param_hrt = $hrt;
-    $param_comments = $comments;
-    $param_jvp = $jvp;
-    $param_id = $id;
+        // Set parameters
+        $param_healthnum = $healthnum;
+        $param_fname = $fname;
+        $param_lname = $lname;
+        $param_wgt = $wgt;
+        $param_hrt = $hrt;
+        $param_comments = $comments;
+        $param_jvp = $jvp;
+        $param_id = $id;
 
-    // Attempt to execute query
-    if ($stmt->execute()) {
-      // Show success of database update
-      $alert = "<strong>Success!</strong> Your changes have been saved!";
-      $alert_color = "alert-success";
+        // Attempt to execute query
+        if ($stmt->execute()) {
+            // Show success of database update
+            $alert = "<strong>Success!</strong> Your changes have been saved!";
+            $alert_color = "alert-success";
 
-      // Create .csv file, store in patientcsv folder
-      $filename = $fname . $lname . ".csv";
-      $target_dir = "patientjvpcsv/";
-      $target_file = $target_dir . $filename;
+            // Create .csv file, store in patientcsv folder
+            $filename = $fname . $lname . ".csv";
+            $target_dir = "patientjvpcsv/";
+            $target_file = $target_dir . $filename;
 
-      $file = fopen($target_file, "w") or die("Unable to open file!");
+            $file = fopen($target_file, "w") or die("Unable to open file!");
 
-      foreach ($csv_arr as $line) {
-        fputcsv($file, $line);
-      }
-      fclose($file);
-    } else {
-      echo "<strong>Oops!</strong> Something went wrong. Please try again later.";
-      $alert = $alert_msg;
-      $alert_color = "alert-danger";
+            foreach ($csv_arr as $line) {
+                fputcsv($file, $line);
+            }
+            fclose($file);
+        } else {
+            echo "<strong>Oops!</strong> Something went wrong. Please try again later.";
+            $alert = $alert_msg;
+            $alert_color = "alert-danger";
+        }
+
+        // Close statement
+        unset($stmt);
     }
-
-    // Close statement
-    unset($stmt);
-  }
 }
 ?>
 
