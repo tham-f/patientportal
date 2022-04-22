@@ -18,178 +18,178 @@ $selected = " selected";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Validate first and last names
-  if (empty(trim($_POST["fname"]))) {
-    $fname_err = "Please enter your first name.";
-  } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["fname"]))) {
-    $fname_err = "First name can only contain letters.";
-  } else {
-    $fname = trim($_POST["fname"]);
-    $fname_err = "";
-  }
+    if (empty(trim($_POST["fname"]))) {
+        $fname_err = "Please enter your first name.";
+    } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["fname"]))) {
+        $fname_err = "First name can only contain letters.";
+    } else {
+        $fname = trim($_POST["fname"]);
+        $fname_err = "";
+    }
 
-  if (empty(trim($_POST["lname"]))) {
-    $lname_err = "Please enter your last name.";
-  } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["lname"]))) {
-    $lname_err = "Last name can only contain letters.";
-  } else {
-    $lname = trim($_POST["lname"]);
-    $lname_err = "";
-  }
+    if (empty(trim($_POST["lname"]))) {
+        $lname_err = "Please enter your last name.";
+    } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["lname"]))) {
+        $lname_err = "Last name can only contain letters.";
+    } else {
+        $lname = trim($_POST["lname"]);
+        $lname_err = "";
+    }
 
-  // Validate date of birth
-  if (empty(trim($_POST["bday"]))) {
-    $bday_err = "Please enter your birth date";
-  } else {
-    $bday = trim($_POST["bday"]);
-    $bday_err = "";
-  }
+    // Validate date of birth
+    if (empty(trim($_POST["bday"]))) {
+        $bday_err = "Please enter your birth date";
+    } else {
+        $bday = trim($_POST["bday"]);
+        $bday_err = "";
+    }
 
-  // Validate email address
-  if (empty(trim($_POST["email"]))) {
-    $email_err = "Please enter an email address.";
-  } elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
-    $email_err = "Email is invalid. Please enter a valid email address.";
-  } else {
-    $email = trim($_POST["email"]);
-    $email_err = "";
-  }
+    // Validate email address
+    if (empty(trim($_POST["email"]))) {
+        $email_err = "Please enter an email address.";
+    } elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
+        $email_err = "Email is invalid. Please enter a valid email address.";
+    } else {
+        $email = trim($_POST["email"]);
+        $email_err = "";
+    }
 
-  // Validate gender input
-  if (empty(trim($_POST["gender"]))) {
-    $gender_err = "Please enter your gender";
-  } else {
-    $gender = trim($_POST["gender"]);
-    $gender_err = "";
-  }
+    // Validate gender input
+    if (empty(trim($_POST["gender"]))) {
+        $gender_err = "Please enter your gender";
+    } else {
+        $gender = trim($_POST["gender"]);
+        $gender_err = "";
+    }
 
-  // Vaalidate phone number
-  if (empty(trim($_POST["phonenum"]))) {
-    $phonenum_err = "Please enter a phone number.";
-  } elseif (!preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", trim($_POST["phonenum"]))) {
-    $phonenum_err = "Please enter a valid phone number.";
-  } else {
-    $phonenum = trim($_POST["phonenum"]);
-    $phonenum_err = "";
-  }
+    // Vaalidate phone number
+    if (empty(trim($_POST["phonenum"]))) {
+        $phonenum_err = "Please enter a phone number.";
+    } elseif (!preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", trim($_POST["phonenum"]))) {
+        $phonenum_err = "Please enter a valid phone number.";
+    } else {
+        $phonenum = trim($_POST["phonenum"]);
+        $phonenum_err = "";
+    }
 
-  // Validate address
-  if (empty(trim($_POST["address"]))) {
-    $address_err = "Please enter an address.";
-  } else {
-    $address = trim($_POST["address"]);
-    $address_err = "";
-  }
+    // Validate address
+    if (empty(trim($_POST["address"]))) {
+        $address_err = "Please enter an address.";
+    } else {
+        $address = trim($_POST["address"]);
+        $address_err = "";
+    }
 
-  // Validate postal code
-  if (empty(trim($_POST["postalcode"]))) {
-    $postalcode_err = "Please enter a postal code.";
-  } else {
-    $postalcode = trim($_POST["postalcode"]);
-    $postalcode_err = "";
-  }
+    // Validate postal code
+    if (empty(trim($_POST["postalcode"]))) {
+        $postalcode_err = "Please enter a postal code.";
+    } else {
+        $postalcode = trim($_POST["postalcode"]);
+        $postalcode_err = "";
+    }
 
-  // Validate healthnum
-  if (empty(trim($_POST["username"]))) {
-    $username_err = "Please enter a healthcard number.";
-  } elseif (!preg_match('/^[a-zA-Z0-9-]+$/', trim($_POST["username"]))) {
-    $username_err = "Healthcard number can only contain numbers and hyphens.";
-  } elseif (!is_numeric(str_replace("-", "", $_POST["username"])) || strlen(str_replace("-", "", $_POST["username"])) != 10) {
-    $username_err = "Invalid healthcard number.";
-  } else {
+    // Validate healthnum
+    if (empty(trim($_POST["username"]))) {
+        $username_err = "Please enter a healthcard number.";
+    } elseif (!preg_match('/^[a-zA-Z0-9-]+$/', trim($_POST["username"]))) {
+        $username_err = "Healthcard number can only contain numbers and hyphens.";
+    } elseif (!is_numeric(str_replace("-", "", $_POST["username"])) || strlen(str_replace("-", "", $_POST["username"])) != 10) {
+        $username_err = "Invalid healthcard number.";
+    } else {
 
     // Prepare a select statement
-    $sql = "SELECT id FROM users WHERE username = :username";
+        $sql = "SELECT id FROM users WHERE username = :username";
 
-    if ($stmt = $pdo->prepare($sql)) {
-      // Bind variables to the prepared statement as parameters
-      $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to the prepared statement as parameters
+            $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
 
-      // Set parameters
-      $param_username = trim($_POST["username"]);
+            // Set parameters
+            $param_username = trim($_POST["username"]);
 
-      // Attempt to execute the prepared statement
-      if ($stmt->execute()) {
-        if ($stmt->rowCount() == 1) {
-          $username_err = "An account with this healthcard number already exists.";
-        } else {
-          $username = trim($_POST["username"]);
-          $username_err = "";
+            // Attempt to execute the prepared statement
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() == 1) {
+                    $username_err = "An account with this healthcard number already exists.";
+                } else {
+                    $username = trim($_POST["username"]);
+                    $username_err = "";
+                }
+            } else {
+                echo $alert;
+            }
+
+            // Close statement
+            unset($stmt);
         }
-      } else {
-        echo $alert;
-      }
-
-      // Close statement
-      unset($stmt);
     }
-  }
 
-  // Validate password
-  if (empty(trim($_POST["password"]))) {
-    $password_err = "Please enter a password.";
-  } elseif (strlen(trim($_POST["password"])) < 6) {
-    $password_err = "Password must have atleast 6 characters.";
-  } else {
-    $password = trim($_POST["password"]);
-    $password_err = "";
-  }
-
-  // Validate confirm password
-  if (empty(trim($_POST["confirm_password"]))) {
-    $confirm_password_err = "Please confirm password.";
-  } else {
-    $confirm_password = trim($_POST["confirm_password"]);
-    $confirm_password_err = "";
-    if (empty($password_err) && ($password != $confirm_password)) {
-      $confirm_password_err = "Password did not match.";
+    // Validate password
+    if (empty(trim($_POST["password"]))) {
+        $password_err = "Please enter a password.";
+    } elseif (strlen(trim($_POST["password"])) < 6) {
+        $password_err = "Password must have atleast 6 characters.";
+    } else {
+        $password = trim($_POST["password"]);
+        $password_err = "";
     }
-  }
 
-  // Check input errors before inserting in database
-  if (empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($fname_err) && empty($lname_err) && empty($bday_err) && empty($gender_err) && empty($email_err) && empty($phonenum_err) && empty($address_err) && empty($postalcode_err)) {
+    // Validate confirm password
+    if (empty(trim($_POST["confirm_password"]))) {
+        $confirm_password_err = "Please confirm password.";
+    } else {
+        $confirm_password = trim($_POST["confirm_password"]);
+        $confirm_password_err = "";
+        if (empty($password_err) && ($password != $confirm_password)) {
+            $confirm_password_err = "Password did not match.";
+        }
+    }
 
-    // Prepare insert statements for 
-    $sql = "INSERT INTO users (fname, lname, username, birthdate, gender, password, email, phonenumber, address, postalcode) 
+    // Check input errors before inserting in database
+    if (empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($fname_err) && empty($lname_err) && empty($bday_err) && empty($gender_err) && empty($email_err) && empty($phonenum_err) && empty($address_err) && empty($postalcode_err)) {
+
+    // Prepare insert statements for
+        $sql = "INSERT INTO users (fname, lname, username, birthdate, gender, password, email, phonenumber, address, postalcode) 
             VALUES (:fname, :lname, :healthnum, :bday, :gender, :password, :email, :phonenum, :address, :postalcode);";
 
-    if ($stmt = $pdo->prepare($sql)) {
-      // Bind variables to the prepared statement as parameters
-      $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
-      $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
-      $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
-      $stmt->bindParam(":password", $param_password, PDO::PARAM_STR);
-      $stmt->bindParam(":email", $param_email, PDO::PARAM_STR);
-      $stmt->bindParam(":phonenum", $param_phonenum, PDO::PARAM_STR);
-      $stmt->bindParam(":address", $param_address, PDO::PARAM_STR);
-      $stmt->bindParam(":postalcode", $param_postalcode, PDO::PARAM_STR);
-      $stmt->bindParam(":bday", $param_bday, PDO::PARAM_STR);
-      $stmt->bindParam(":gender", $param_gender, PDO::PARAM_STR);
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to the prepared statement as parameters
+            $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
+            $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
+            $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+            $stmt->bindParam(":password", $param_password, PDO::PARAM_STR);
+            $stmt->bindParam(":email", $param_email, PDO::PARAM_STR);
+            $stmt->bindParam(":phonenum", $param_phonenum, PDO::PARAM_STR);
+            $stmt->bindParam(":address", $param_address, PDO::PARAM_STR);
+            $stmt->bindParam(":postalcode", $param_postalcode, PDO::PARAM_STR);
+            $stmt->bindParam(":bday", $param_bday, PDO::PARAM_STR);
+            $stmt->bindParam(":gender", $param_gender, PDO::PARAM_STR);
 
-      // Set parameters
-      $param_fname = $fname;
-      $param_lname = $lname;
-      $param_healthnum = $username;
-      $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-      $param_email = $email;
-      $param_phonenum = $phonenum;
-      $param_address = $address;
-      $param_postalcode = $postalcode;
-      $param_bday = $bday;
-      $param_gender = $gender;
+            // Set parameters
+            $param_fname = $fname;
+            $param_lname = $lname;
+            $param_healthnum = $username;
+            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
+            $param_email = $email;
+            $param_phonenum = $phonenum;
+            $param_address = $address;
+            $param_postalcode = $postalcode;
+            $param_bday = $bday;
+            $param_gender = $gender;
 
-      // Attempt to execute the prepared statement
-      if ($stmt->execute()) {
-        header("location: login.php");
-      } else {
-        echo $alert;
-      }
-      // Close statement
-      unset($stmt);
+            // Attempt to execute the prepared statement
+            if ($stmt->execute()) {
+                header("location: login.php");
+            } else {
+                echo $alert;
+            }
+            // Close statement
+            unset($stmt);
+        }
     }
-  }
 
-  // Close connection
-  unset($pdo);
+    // Close connection
+    unset($pdo);
 }
 ?>
 
@@ -357,7 +357,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
       <?php
       if (!empty($login_err)) {
-        echo '<div class="alert alert-danger">' . $login_err . '</div>';
+          echo '<div class="alert alert-danger">' . $login_err . '</div>';
       }
       ?>
 

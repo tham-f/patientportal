@@ -15,25 +15,25 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $hashed_password = $stmt->fetch()[0];
 
-// When form is submitted, verify password, redirect to appropriate page 
+// When form is submitted, verify password, redirect to appropriate page
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $password = $_POST["password"];
+    $password = $_POST["password"];
 
-  // Verify password with stored password
-  if (password_verify($password, $hashed_password)) {
-    $alert = "";
-    // Password is correct, initialize the session 
-    session_start();
+    // Verify password with stored password
+    if (password_verify($password, $hashed_password)) {
+        $alert = "";
+        // Password is correct, initialize the session
+        session_start();
 
-    $_SESSION["adminaccess"] = true;
-    // Redirect user to create-admin page
-    header("location: create-admin.php");
-  } else {
-    // Password is not valid
-    $alert = "<div class='alert alert-danger' role='alert'>
+        $_SESSION["adminaccess"] = true;
+        // Redirect user to create-admin page
+        header("location: create-admin.php");
+    } else {
+        // Password is not valid
+        $alert = "<div class='alert alert-danger' role='alert'>
                 Password is incorrect.
               </div>";
-  }
+    }
 }
 ?>
 

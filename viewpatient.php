@@ -1,20 +1,20 @@
 <?php
-// Start session 
+// Start session
 session_start();
 
-// Include config file  
+// Include config file
 require_once "config.php";
 
 // Check if the user is logged in, if not then redirect him to login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-	header("location: login.php");
-	exit;
-} else if (isset($_SESSION["loggedin"]) && !$_SESSION["admin"]) {
-	header("location: index.php");
-	exit;
+    header("location: login.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && !$_SESSION["admin"]) {
+    header("location: index.php");
+    exit;
 }
 
-// Declare variables 
+// Declare variables
 $fname = $lname = $gender = $bday = "";
 $id = $healthnum = "";
 $email = $phonenum = $address = $postalcode = "";
@@ -27,200 +27,200 @@ $inputinvalid = "is-invalid";
 $selected = " selected";
 
 if (is_numeric(trim($_GET['PatientID']))) {
-	$id = trim($_GET['PatientID']);
+    $id = trim($_GET['PatientID']);
 } else {
-	http_response_code(404);
-	include('err-404.php'); // provide your own HTML for the error page
-	die();
+    http_response_code(404);
+    include('err-404.php'); // provide your own HTML for the error page
+    die();
 }
 
 $sql = "SELECT * FROM users WHERE id = " . $id;
 
 if ($stmt = $pdo->prepare($sql)) {
-	if ($stmt->execute()) {
-		$patientinfo = $stmt->fetch();
-		// Checks if query successfully returned an existing patient
-		if ($patientinfo != "") {
-			$id = $patientinfo['id'];
-			$fname = $patientinfo['fname'];
-			$lname = $patientinfo['lname'];
-			$healthnum = $patientinfo['username'];
-			$email = $patientinfo['email'];
-			$phonenum = $patientinfo['phonenumber'];
-			$address = $patientinfo['address'];
-			$postalcode = $patientinfo['postalcode'];
-			$account_created = $patientinfo['created_at'];
-			$biography = $patientinfo['biography'];
-			$name = $fname . " " . $lname;
-		} else {
-			// * Show error 404 message, redirect to home page if PatientID is out of bounds
-			http_response_code(404);
-			include('err-404.php'); // Shows error 404 page that will redirect to admin home after some time
-			die(); // Stops the reading of the rest of this file
-		}
-	} else {
-		echo "Oops! Something went wrong.";
-	}
+    if ($stmt->execute()) {
+        $patientinfo = $stmt->fetch();
+        // Checks if query successfully returned an existing patient
+        if ($patientinfo != "") {
+            $id = $patientinfo['id'];
+            $fname = $patientinfo['fname'];
+            $lname = $patientinfo['lname'];
+            $healthnum = $patientinfo['username'];
+            $email = $patientinfo['email'];
+            $phonenum = $patientinfo['phonenumber'];
+            $address = $patientinfo['address'];
+            $postalcode = $patientinfo['postalcode'];
+            $account_created = $patientinfo['created_at'];
+            $biography = $patientinfo['biography'];
+            $name = $fname . " " . $lname;
+        } else {
+            // * Show error 404 message, redirect to home page if PatientID is out of bounds
+            http_response_code(404);
+            include('err-404.php'); // Shows error 404 page that will redirect to admin home after some time
+            die(); // Stops the reading of the rest of this file
+        }
+    } else {
+        echo "Oops! Something went wrong.";
+    }
 }
 
 // Delete patient from all tables in database if delete button is pressed
 if (isset($_POST['delete-patient'])) {
-	// Write delete query from users and jvp tables
-	$sql = "DELETE FROM users WHERE id = :id;
+    // Write delete query from users and jvp tables
+    $sql = "DELETE FROM users WHERE id = :id;
 					DELETE FROM jvp WHERE id = :id;
 					DELETE FROM medicalhistory WHERE id = :id;";
 
-	if ($stmt = $pdo->prepare($sql)) {
-		$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    if ($stmt = $pdo->prepare($sql)) {
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
-		if ($stmt->execute()) {
-			echo '<script>
+        if ($stmt->execute()) {
+            echo '<script>
 							alert("Patient deleted! Redirecting you to the patient list...");
 							var timer = setTimeout(function () {
 								window.location = "patients.php"
 							}, 1000);
 						</script>';
-		}
-	}
-} else if (isset($_POST["edit"])) {
-	// Validate first and last names
-	if (empty(trim($_POST["fname"]))) {
-		$fname_err = "Please enter your first name.";
-		$fname_valid = $inputinvalid;
-	} elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["fname"]))) {
-		$fname_err = "First name can only contain letters.";
-		$fname_valid = $inputinvalid;
-	} else {
-		$fname = trim($_POST["fname"]);
-		$fname_err = "";
-		$fname_valid = $inputvalid;
-	}
+        }
+    }
+} elseif (isset($_POST["edit"])) {
+    // Validate first and last names
+    if (empty(trim($_POST["fname"]))) {
+        $fname_err = "Please enter your first name.";
+        $fname_valid = $inputinvalid;
+    } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["fname"]))) {
+        $fname_err = "First name can only contain letters.";
+        $fname_valid = $inputinvalid;
+    } else {
+        $fname = trim($_POST["fname"]);
+        $fname_err = "";
+        $fname_valid = $inputvalid;
+    }
 
-	if (empty(trim($_POST["lname"]))) {
-		$lname_err = "Please enter your last name.";
-		$lname_valid = $inputinvalid;
-	} elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["lname"]))) {
-		$lname_err = "Last name can only contain letters.";
-		$lname_valid = $inputinvalid;
-	} else {
-		$lname = trim($_POST["lname"]);
-		$lname_err = "";
-		$lname_valid = $inputvalid;
-	}
+    if (empty(trim($_POST["lname"]))) {
+        $lname_err = "Please enter your last name.";
+        $lname_valid = $inputinvalid;
+    } elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["lname"]))) {
+        $lname_err = "Last name can only contain letters.";
+        $lname_valid = $inputinvalid;
+    } else {
+        $lname = trim($_POST["lname"]);
+        $lname_err = "";
+        $lname_valid = $inputvalid;
+    }
 
-	// Validate date of birth
-	if (empty(trim($_POST["bday"]))) {
-		$bday_err = "Please enter your birth date";
-	} else {
-		$bday = trim($_POST["bday"]);
-		$bday_err = "";
-		$bday_valid = $inputvalid;
-	}
+    // Validate date of birth
+    if (empty(trim($_POST["bday"]))) {
+        $bday_err = "Please enter your birth date";
+    } else {
+        $bday = trim($_POST["bday"]);
+        $bday_err = "";
+        $bday_valid = $inputvalid;
+    }
 
-	// Validate gender input
-	if (empty(trim($_POST["gender"]))) {
-		$gender_err = "Please enter your gender";
-	} else {
-		$gender = trim($_POST["gender"]);
-		$gender_err = "";
-		$gender_valid = $inputvalid;
-	}
+    // Validate gender input
+    if (empty(trim($_POST["gender"]))) {
+        $gender_err = "Please enter your gender";
+    } else {
+        $gender = trim($_POST["gender"]);
+        $gender_err = "";
+        $gender_valid = $inputvalid;
+    }
 
-	// Validate email address
-	if (empty(trim($_POST["email"]))) {
-		$email_err = "Please enter an email address.";
-		$email_valid = $inputinvalid;
-	} elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
-		$email_err = "Email is invalid. Please enter a valid email address.";
-		$email_valid = $inputinvalid;
-	} else {
-		$email = trim($_POST["email"]);
-		$email_err = "";
-		$email_valid = $inputvalid;
-	}
+    // Validate email address
+    if (empty(trim($_POST["email"]))) {
+        $email_err = "Please enter an email address.";
+        $email_valid = $inputinvalid;
+    } elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
+        $email_err = "Email is invalid. Please enter a valid email address.";
+        $email_valid = $inputinvalid;
+    } else {
+        $email = trim($_POST["email"]);
+        $email_err = "";
+        $email_valid = $inputvalid;
+    }
 
-	// Vaalidate phone number
-	if (empty(trim($_POST["phonenum"]))) {
-		$phonenum_err = "Please enter a phone number.";
-		$phonenum_valid = $inputinvalid;
-	} elseif (!preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", trim($_POST["phonenum"]))) {
-		$phonenum_err = "Please enter a valid phone number.";
-		$phonenum_valid = $inputinvalid;
-	} else {
-		$phonenum = trim($_POST["phonenum"]);
-		$phonenum_err = "";
-		$phonenum_valid = $inputvalid;
-	}
+    // Vaalidate phone number
+    if (empty(trim($_POST["phonenum"]))) {
+        $phonenum_err = "Please enter a phone number.";
+        $phonenum_valid = $inputinvalid;
+    } elseif (!preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", trim($_POST["phonenum"]))) {
+        $phonenum_err = "Please enter a valid phone number.";
+        $phonenum_valid = $inputinvalid;
+    } else {
+        $phonenum = trim($_POST["phonenum"]);
+        $phonenum_err = "";
+        $phonenum_valid = $inputvalid;
+    }
 
-	// Validate address
-	if (empty(trim($_POST["address"]))) {
-		$address_err = "Please enter an address.";
-		$address_valid = $inputinvalid;
-	} else {
-		$address = trim($_POST["address"]);
-		$address_err = "";
-		$address_valid = $inputvalid;
-	}
+    // Validate address
+    if (empty(trim($_POST["address"]))) {
+        $address_err = "Please enter an address.";
+        $address_valid = $inputinvalid;
+    } else {
+        $address = trim($_POST["address"]);
+        $address_err = "";
+        $address_valid = $inputvalid;
+    }
 
-	// Validate postal code
-	if (empty(trim($_POST["postalcode"]))) {
-		$postalcode_err = "Please enter a postal code.";
-		$postalcode_valid = $inputinvalid;
-	} else {
-		$postalcode = trim($_POST["postalcode"]);
-		$postalcode_err = "";
-		$postalcode_valid = $inputvalid;
-	}
+    // Validate postal code
+    if (empty(trim($_POST["postalcode"]))) {
+        $postalcode_err = "Please enter a postal code.";
+        $postalcode_valid = $inputinvalid;
+    } else {
+        $postalcode = trim($_POST["postalcode"]);
+        $postalcode_err = "";
+        $postalcode_valid = $inputvalid;
+    }
 
-	// Validate healthnum
-	if (empty(trim($_POST["healthnum"]))) {
-		$healthnum_err = "Please enter a healthcard number.";
-		$healthnum_valid = $inputinvalid;
-	} elseif (!preg_match('/^[a-zA-Z0-9-]+$/', trim($_POST["healthnum"]))) {
-		$healthnum_err = "Healthcard number can only contain numbers and hyphens.";
-		$healthnum_valid = $inputinvalid;
-	} elseif (!is_numeric(str_replace("-", "", $_POST["healthnum"])) || strlen(str_replace("-", "", $_POST["healthnum"])) != 10) {
-		$healthnum_err = "Invalid healthcard number.";
-		$healthnum_valid = $inputinvalid;
-	} else {
+    // Validate healthnum
+    if (empty(trim($_POST["healthnum"]))) {
+        $healthnum_err = "Please enter a healthcard number.";
+        $healthnum_valid = $inputinvalid;
+    } elseif (!preg_match('/^[a-zA-Z0-9-]+$/', trim($_POST["healthnum"]))) {
+        $healthnum_err = "Healthcard number can only contain numbers and hyphens.";
+        $healthnum_valid = $inputinvalid;
+    } elseif (!is_numeric(str_replace("-", "", $_POST["healthnum"])) || strlen(str_replace("-", "", $_POST["healthnum"])) != 10) {
+        $healthnum_err = "Invalid healthcard number.";
+        $healthnum_valid = $inputinvalid;
+    } else {
 
-		// Prepare a select statement
-		$sql = "SELECT id FROM users WHERE username = :healthnum AND id NOT IN ( :id )";
+        // Prepare a select statement
+        $sql = "SELECT id FROM users WHERE username = :healthnum AND id NOT IN ( :id )";
 
-		if ($stmt = $pdo->prepare($sql)) {
-			// Bind variables to the prepared statement as parameters
-			$stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
-			$stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        if ($stmt = $pdo->prepare($sql)) {
+            // Bind variables to the prepared statement as parameters
+            $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
 
-			// Set parameters
-			$param_healthnum = trim($_POST["healthnum"]);
+            // Set parameters
+            $param_healthnum = trim($_POST["healthnum"]);
 
-			// Attempt to execute the prepared statement
-			if ($stmt->execute()) {
-				if ($stmt->rowCount() > 0) {
-					$healthnum_err = "An existing account already has this healthcard number.";
-					$healthnum_valid = $inputinvalid;
-				} else {
-					$healthnum = trim($_POST["healthnum"]);
-					$healthnum_err = "";
-					$healthnum_valid = $inputvalid;
-				}
-			} else {
-				echo $error;
-			}
-			// Close statement
-			unset($stmt);
-		}
-	}
+            // Attempt to execute the prepared statement
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    $healthnum_err = "An existing account already has this healthcard number.";
+                    $healthnum_valid = $inputinvalid;
+                } else {
+                    $healthnum = trim($_POST["healthnum"]);
+                    $healthnum_err = "";
+                    $healthnum_valid = $inputvalid;
+                }
+            } else {
+                echo $error;
+            }
+            // Close statement
+            unset($stmt);
+        }
+    }
 
-	// Save user inputs to variables
-	$address = trim($_POST["address"]);
-	$biography = trim($_POST["biography"]);
+    // Save user inputs to variables
+    $address = trim($_POST["address"]);
+    $biography = trim($_POST["biography"]);
 
-	// * Check if there are any errors in user inputs
-	if (empty($fname_err) && empty($lname_err) && empty($healthnum_err) && empty($email_err) && empty($address_err) && empty($phonenum_err) && empty($postalcode_err)) {
-		// * Write update query for user, jvp, and medicalhistory tables
-		$sql = "UPDATE users
+    // * Check if there are any errors in user inputs
+    if (empty($fname_err) && empty($lname_err) && empty($healthnum_err) && empty($email_err) && empty($address_err) && empty($phonenum_err) && empty($postalcode_err)) {
+        // * Write update query for user, jvp, and medicalhistory tables
+        $sql = "UPDATE users
 						SET fname = :fname, lname = :lname, username = :healthnum, birthdate = :bday, gender = :gender, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
 						WHERE id = :id;
 						UPDATE jvp
@@ -230,43 +230,43 @@ if (isset($_POST['delete-patient'])) {
 						SET healthnum = :healthnum, fname = :fname, lname = :lname
 						WHERE id = :id;";
 
-		// * Prepare statement
-		if ($stmt = $pdo->prepare($sql)) {
-			// * Bind parameters to variables
-			$stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
-			$stmt->bindParam(':fname', $param_fname, PDO::PARAM_STR);
-			$stmt->bindParam(':lname', $param_lname, PDO::PARAM_STR);
-			$stmt->bindParam(':healthnum', $param_healthnum, PDO::PARAM_STR);
-			$stmt->bindParam(':email', $param_email, PDO::PARAM_STR);
-			$stmt->bindParam(':phonenum', $param_phonenum, PDO::PARAM_STR);
-			$stmt->bindParam(':address', $param_address, PDO::PARAM_STR);
-			$stmt->bindParam(':postalcode', $param_postalcode, PDO::PARAM_STR);
-			$stmt->bindParam(':biography', $param_biography, PDO::PARAM_STR);
-			$stmt->bindParam(':bday', $param_bday, PDO::PARAM_STR);
-			$stmt->bindParam(':gender', $param_gender, PDO::PARAM_STR);
+        // * Prepare statement
+        if ($stmt = $pdo->prepare($sql)) {
+            // * Bind parameters to variables
+            $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+            $stmt->bindParam(':fname', $param_fname, PDO::PARAM_STR);
+            $stmt->bindParam(':lname', $param_lname, PDO::PARAM_STR);
+            $stmt->bindParam(':healthnum', $param_healthnum, PDO::PARAM_STR);
+            $stmt->bindParam(':email', $param_email, PDO::PARAM_STR);
+            $stmt->bindParam(':phonenum', $param_phonenum, PDO::PARAM_STR);
+            $stmt->bindParam(':address', $param_address, PDO::PARAM_STR);
+            $stmt->bindParam(':postalcode', $param_postalcode, PDO::PARAM_STR);
+            $stmt->bindParam(':biography', $param_biography, PDO::PARAM_STR);
+            $stmt->bindParam(':bday', $param_bday, PDO::PARAM_STR);
+            $stmt->bindParam(':gender', $param_gender, PDO::PARAM_STR);
 
-			// * Give paramters values
-			$param_id = $id;
-			$param_fname = $fname;
-			$param_lname = $lname;
-			$param_healthnum = $healthnum;
-			$param_email = $email;
-			$param_phonenum = $phonenum;
-			$param_address = $address;
-			$param_postalcode = $postalcode;
-			$param_biography = $biography;
-			$param_gender = $gender;
-			$param_bday = $bday;
+            // * Give paramters values
+            $param_id = $id;
+            $param_fname = $fname;
+            $param_lname = $lname;
+            $param_healthnum = $healthnum;
+            $param_email = $email;
+            $param_phonenum = $phonenum;
+            $param_address = $address;
+            $param_postalcode = $postalcode;
+            $param_biography = $biography;
+            $param_gender = $gender;
+            $param_bday = $bday;
 
-			if ($stmt->execute()) {
-				echo "<script>alert('Changes to this profile have been saved!')</script>";
-			} else {
-				echo $error;
-			}
-		} else {
-			echo $error;
-		}
-	}
+            if ($stmt->execute()) {
+                echo "<script>alert('Changes to this profile have been saved!')</script>";
+            } else {
+                echo $error;
+            }
+        } else {
+            echo $error;
+        }
+    }
 }
 ?>
 

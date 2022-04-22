@@ -5,11 +5,11 @@ session_start();
 // * Check if the user is logged in, if not then redirect to login page
 // * Validate admin access
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-  header("location: login.php");
-  exit;
-} else if (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
-  header("location: admin.php");
-  exit;
+    header("location: login.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
+    header("location: admin.php");
+    exit;
 }
 ?>
 

@@ -7,11 +7,11 @@ require_once "config.php";
 // * Check if the user is logged in, if not then redirect to login page
 // * Validate admin access
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-  header("location: login.php");
-  exit;
-} else if (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
-  header("location: admin.php");
-  exit;
+    header("location: login.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && $_SESSION["admin"]) {
+    header("location: admin.php");
+    exit;
 }
 // Declare variables
 $fname = $lname = $name = "";
@@ -28,132 +28,132 @@ $alert_msg = "Oops! Something went wrong.";
 $numeric_err = "This value can only contain numbers.";
 $selected = " selected";
 
-// Write query to select JVP info for 
+// Write query to select JVP info for
 $qry = "SELECT * FROM medicalhistory WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-  // Bind id number to parameter
-  $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
+    // Bind id number to parameter
+    $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
 
-  // Set parameters
-  $param_id = $id;
+    // Set parameters
+    $param_id = $id;
 
-  // Attempt to execute query
-  if ($stmt->execute()) {
-    $userdata = $stmt->fetch();
-    $name = $fname . " " . $lname;
-    $card = $userdata['card'] ?? "";
-    $cc = $userdata['chiefcomplaint'] ?? "";
-    $hpi = $userdata['hpi'] ?? "";
-    $rf = $userdata['riskfactors'] ?? "";
-    $pmh = $userdata['pmh'] ?? "";
-    $meds = $userdata['meds'] ?? "";
-  } else {
-    echo "Oops, something went wrong. Try again later.";
-  }
-  unset($stmt);
+    // Attempt to execute query
+    if ($stmt->execute()) {
+        $userdata = $stmt->fetch();
+        $name = $fname . " " . $lname;
+        $card = $userdata['card'] ?? "";
+        $cc = $userdata['chiefcomplaint'] ?? "";
+        $hpi = $userdata['hpi'] ?? "";
+        $rf = $userdata['riskfactors'] ?? "";
+        $pmh = $userdata['pmh'] ?? "";
+        $meds = $userdata['meds'] ?? "";
+    } else {
+        echo "Oops, something went wrong. Try again later.";
+    }
+    unset($stmt);
 }
 
 $qry = "SELECT * FROM users WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-  // Bind id number to parameter 
-  $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+    // Bind id number to parameter
+    $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
 
-  // Attempt to execute query
-  if ($stmt->execute()) {
-    $userdata = $stmt->fetch();
-    $bday = $userdata['birthdate'];
-    $gender = $userdata['gender'];
-  }
+    // Attempt to execute query
+    if ($stmt->execute()) {
+        $userdata = $stmt->fetch();
+        $bday = $userdata['birthdate'];
+        $gender = $userdata['gender'];
+    }
 }
 
 // Process form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Validate input
-  if (empty(trim($_POST["card"]))) {
-    $card_err = "Please enter previous cardiac history.";
-  } else if (!is_numeric($_POST["card"])) {
-    $card_err = $numeric_err;
-  } else {
-    $card = trim($_POST["card"]);
-  }
+    if (empty(trim($_POST["card"]))) {
+        $card_err = "Please enter previous cardiac history.";
+    } elseif (!is_numeric($_POST["card"])) {
+        $card_err = $numeric_err;
+    } else {
+        $card = trim($_POST["card"]);
+    }
 
-  if (empty(trim($_POST["pmh"]))) {
-    $pmh_err = "Please enter a past medical history.";
-  } else if (!is_numeric($_POST["pmh"])) {
-    $pmh_err = $numeric_err;
-  } else {
-    $pmh = trim($_POST["pmh"]);
-  }
+    if (empty(trim($_POST["pmh"]))) {
+        $pmh_err = "Please enter a past medical history.";
+    } elseif (!is_numeric($_POST["pmh"])) {
+        $pmh_err = $numeric_err;
+    } else {
+        $pmh = trim($_POST["pmh"]);
+    }
 
-  $hpi = trim($_POST["hpi"]);
-  $cc = trim($_POST["cc"]);
-  $rf = trim($_POST["rf"]);
+    $hpi = trim($_POST["hpi"]);
+    $cc = trim($_POST["cc"]);
+    $rf = trim($_POST["rf"]);
 
-  // Insert title of columns into csv array
-  $csv_arr = array();
-  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI', 'Meds', 'Date Submitted');
-  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $cc, $card, $pmh, $rf, $hpi, $meds, date("Ymd"));
+    // Insert title of columns into csv array
+    $csv_arr = array();
+    $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI', 'Meds', 'Date Submitted');
+    $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $cc, $card, $pmh, $rf, $hpi, $meds, date("Ymd"));
 
-  // Prepare query statement to update JVP info in database
-  $sql = "INSERT INTO medicalhistory (id, healthnum, fname, lname, chiefcomplaint, card, pmh, riskfactors, hpi, meds)
+    // Prepare query statement to update JVP info in database
+    $sql = "INSERT INTO medicalhistory (id, healthnum, fname, lname, chiefcomplaint, card, pmh, riskfactors, hpi, meds)
           VALUES (:id, :healthnum, :fname, :lname, :cc, :card, :pmh, :rf, :hpi, :meds)
           ON DUPLICATE KEY UPDATE
 					healthnum = :healthnum, fname = :fname, lname = :lname, chiefcomplaint = :cc, card = :card, pmh = :pmh, riskfactors = :rf, hpi = :hpi, meds = :meds";
 
-  if ($stmt = $pdo->prepare($sql)) {
-    // Bind variables to parameters
-    $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
-    $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
-    $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
-    $stmt->bindParam(":cc", $param_cc, PDO::PARAM_STR);
-    $stmt->bindParam(":card", $param_card, PDO::PARAM_INT);
-    $stmt->bindParam(":pmh", $param_pmh, PDO::PARAM_INT);
-    $stmt->bindParam(":rf", $param_rf, PDO::PARAM_STR);
-    $stmt->bindParam(":hpi", $param_hpi, PDO::PARAM_STR);
-    $stmt->bindParam(":meds", $param_meds, PDO::PARAM_STR);
-    $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
+    if ($stmt = $pdo->prepare($sql)) {
+        // Bind variables to parameters
+        $stmt->bindParam(":healthnum", $param_healthnum, PDO::PARAM_STR);
+        $stmt->bindParam(":fname", $param_fname, PDO::PARAM_STR);
+        $stmt->bindParam(":lname", $param_lname, PDO::PARAM_STR);
+        $stmt->bindParam(":cc", $param_cc, PDO::PARAM_STR);
+        $stmt->bindParam(":card", $param_card, PDO::PARAM_INT);
+        $stmt->bindParam(":pmh", $param_pmh, PDO::PARAM_INT);
+        $stmt->bindParam(":rf", $param_rf, PDO::PARAM_STR);
+        $stmt->bindParam(":hpi", $param_hpi, PDO::PARAM_STR);
+        $stmt->bindParam(":meds", $param_meds, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
 
-    // Set parameters
-    $param_healthnum = $healthnum;
-    $param_fname = $fname;
-    $param_lname = $lname;
-    $param_cc = $cc;
-    $param_card = $card;
-    $param_pmh = $pmh;
-    $param_hpi = $hpi;
-    $param_rf = $rf;
-    $param_meds = $meds;
-    $param_id = $id;
+        // Set parameters
+        $param_healthnum = $healthnum;
+        $param_fname = $fname;
+        $param_lname = $lname;
+        $param_cc = $cc;
+        $param_card = $card;
+        $param_pmh = $pmh;
+        $param_hpi = $hpi;
+        $param_rf = $rf;
+        $param_meds = $meds;
+        $param_id = $id;
 
-    // Attempt to execute query
-    if ($stmt->execute()) {
-      // Show success of database update
-      $alert = "<strong>Success!</strong> Your changes have been saved!";
-      $alert_color = "alert-success";
+        // Attempt to execute query
+        if ($stmt->execute()) {
+            // Show success of database update
+            $alert = "<strong>Success!</strong> Your changes have been saved!";
+            $alert_color = "alert-success";
 
-      // Create .csv file, store in patientcsv folder
-      $filename = $fname . $lname . ".csv";
-      $target_dir = "patientmedhis/";
-      $target_file = $target_dir . $filename;
+            // Create .csv file, store in patientcsv folder
+            $filename = $fname . $lname . ".csv";
+            $target_dir = "patientmedhis/";
+            $target_file = $target_dir . $filename;
 
-      $file = fopen($target_file, "w") or die("Unable to open file!");
+            $file = fopen($target_file, "w") or die("Unable to open file!");
 
-      foreach ($csv_arr as $line) {
-        fputcsv($file, $line);
-      }
-      fclose($file);
-    } else {
-      echo "<strong>Oops!</strong> Something went wrong. Please try again later.";
-      $alert = $alert_msg;
-      $alert_color = "alert-danger";
+            foreach ($csv_arr as $line) {
+                fputcsv($file, $line);
+            }
+            fclose($file);
+        } else {
+            echo "<strong>Oops!</strong> Something went wrong. Please try again later.";
+            $alert = $alert_msg;
+            $alert_color = "alert-danger";
+        }
+
+        // Close statement
+        unset($stmt);
     }
-
-    // Close statement
-    unset($stmt);
-  }
 }
 ?>
 

@@ -1,17 +1,17 @@
 <?php
-// Start session 
+// Start session
 session_start();
 
-// Include config file  
+// Include config file
 require_once "config.php";
 
 // Check if the user is logged in, if not then redirect him to login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-	header("location: login.php");
-	exit;
-} else if (isset($_SESSION["loggedin"]) && !$_SESSION["admin"]) {
-	header("location: index.php");
-	exit;
+    header("location: login.php");
+    exit;
+} elseif (isset($_SESSION["loggedin"]) && !$_SESSION["admin"]) {
+    header("location: index.php");
+    exit;
 }
 
 // Declare variables
@@ -25,54 +25,54 @@ $sql = "SELECT * FROM users ORDER BY id ASC";
 
 // Prepare statement
 if ($stmt = $pdo->prepare($sql)) {
-	// Execute statement
-	if ($stmt->execute()) {
-		$usertable = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		foreach ($usertable as $user) {
-			$table_array[] = array($user['id'], $user['username'], $user['fname'], $user['lname'], $user['email'], $user['phonenumber'], $user['address'], $user['postalcode']);
-		}
-		foreach ($table_array as $userout) {
-			$table .= "<tr><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>" . implode("</a></td><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>", $userout) . "</a></td></tr>";
-		}
-	} else {
-		echo $error;
-	}
-	unset($stmt);
+    // Execute statement
+    if ($stmt->execute()) {
+        $usertable = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($usertable as $user) {
+            $table_array[] = array($user['id'], $user['username'], $user['fname'], $user['lname'], $user['email'], $user['phonenumber'], $user['address'], $user['postalcode']);
+        }
+        foreach ($table_array as $userout) {
+            $table .= "<tr><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>" . implode("</a></td><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>", $userout) . "</a></td></tr>";
+        }
+    } else {
+        echo $error;
+    }
+    unset($stmt);
 } else {
-	echo $error;
+    echo $error;
 }
 
 // Search for patients when searchbar is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	$table = "";
-	unset($table_array);
-	// Define search variable
-	$search = $_POST["searchbar"];
+    $table = "";
+    unset($table_array);
+    // Define search variable
+    $search = $_POST["searchbar"];
 
-	// Prepare search statement
-	$qry = "SELECT * FROM users WHERE fname LIKE '%$search%' or lname LIKE '%$search%'";
+    // Prepare search statement
+    $qry = "SELECT * FROM users WHERE fname LIKE '%$search%' or lname LIKE '%$search%'";
 
-	// Prepare fetch
-	if ($stmt = $pdo->prepare($qry)) {
-		// Attempt to execute query
-		if ($stmt->execute()) {
-			$usertable = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			// Check if search returned any results
-			if (empty($usertable)) {
-				$table = "Search returned no results. Please try another search term.";
-			} else {
-				foreach ($usertable as $user) {
-					$table_array[] = array($user['id'], $user['username'], $user['fname'], $user['lname'], $user['email'], $user['phonenumber'], $user['address'], $user['postalcode']);
-				}
-				foreach ($table_array as $userout) {
-					$table .= "<tr><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>" . implode("</a></td><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>", $userout) . "</a></td></tr>";
-				}
-			}
-		} else {
-			echo $error;
-		}
-		unset($stmt);
-	}
+    // Prepare fetch
+    if ($stmt = $pdo->prepare($qry)) {
+        // Attempt to execute query
+        if ($stmt->execute()) {
+            $usertable = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Check if search returned any results
+            if (empty($usertable)) {
+                $table = "Search returned no results. Please try another search term.";
+            } else {
+                foreach ($usertable as $user) {
+                    $table_array[] = array($user['id'], $user['username'], $user['fname'], $user['lname'], $user['email'], $user['phonenumber'], $user['address'], $user['postalcode']);
+                }
+                foreach ($table_array as $userout) {
+                    $table .= "<tr><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>" . implode("</a></td><td><a href='viewpatient.php?PatientID=" . $userout[0] . "'>", $userout) . "</a></td></tr>";
+                }
+            }
+        } else {
+            echo $error;
+        }
+        unset($stmt);
+    }
 }
 ?>
 
