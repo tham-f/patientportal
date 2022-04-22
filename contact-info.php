@@ -90,10 +90,11 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
   </div>
 
   <div id="sidebar" class="theme-d3">
-    <a class="side-item" href="index.php"><em class="fa-solid fa-house"></em>Home</a>
-    <a class="side-item"><em class="fa-regular fa-heart"></em>Medical History</a>
-    <a class="side-item"><em class="fa-solid fa-heart-pulse"></em>Jugular Venous Pressure</a>
-    <a class="side-item"><em class="fa-solid fa-phone"></em>Contact Us</a>
+    <a class="side-item hover-theme" href="index.php"><em class="fa-solid fa-house"></em>Home</a>
+    <a class="side-item hover-theme" href="medhis.php"><em class="fa-regular fa-heart"></em>Medical History</a>
+    <a class="side-item hover-theme" href="jvp.php"><em class="fa-solid fa-heart-pulse"></em>Jugular Venous Pressure</a>
+    <a class="side-item hover-theme"><em class="fa-solid fa-phone"></em>Contact Us</a>
+    <a class="side-item hover-theme" href="cardiac-rehab.php"><em class="fa-solid fa-hand-holding-heart"></em>Cardiac Rehab</a>
   </div>
 
   <div id="main-text">
