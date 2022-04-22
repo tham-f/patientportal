@@ -17,7 +17,6 @@ require_once "config.php";
 // Declare variables
 $fname = $lname = "";
 $fname_err = $lname_err = $phonenum_err = $email_err = $address_err = $postalcode_err = $healthnum_err = "";
-$fname_valid = $lname_valid = $phonenum_valid = $email_valid = $address_valid = $postalcode_valid = $healthnum_valid = "is-valid";
 $old_password = $new_password = $confirm_new_password = $hashed_password = "";
 $old_password_err = $new_password_err = $confirm_new_password_err = "Please fill in to change your password.";
 $old_pass_validation = $new_pass_validation = $confirm_new_pass_validation = "is-invalid";
@@ -25,6 +24,8 @@ $old_pass_feedback = $new_pass_feedback = $confirm_new_pass_feedback = "invalid-
 $phonenum = $biography = "";
 $email = $phone_num = "";
 $address = $postalcode = "";
+$bday = $gender = "";
+$gender_err = $bday_err = "";
 $alert_color = $alert = "";
 $pass_alert_color = $pass_alert = "";
 $healthnum = "";
@@ -32,6 +33,7 @@ $id = "";
 $error = "Oops! Something went wrong.";
 $inputvalid = "is-valid";
 $inputinvalid = "is-invalid";
+$selected = " selected";
 
 // Select all from user database
 $qry = "SELECT * FROM users WHERE id = :id";
@@ -72,84 +74,81 @@ if (isset($_POST['save-profile'])) {
 	// Validate first and last names
 	if (empty(trim($_POST["fname"]))) {
 		$fname_err = "Please enter your first name.";
-		$fname_valid = $inputinvalid;
 	} elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["fname"]))) {
 		$fname_err = "First name can only contain letters.";
-		$fname_valid = $inputinvalid;
 	} else {
 		$fname = trim($_POST["fname"]);
 		$fname_err = "";
-		$fname_valid = $inputvalid;
 	}
 
 	if (empty(trim($_POST["lname"]))) {
 		$lname_err = "Please enter your last name.";
-		$lname_valid = $inputinvalid;
 	} elseif (!preg_match('/^[a-zA-Z ]+$/', trim($_POST["lname"]))) {
 		$lname_err = "Last name can only contain letters.";
-		$lname_valid = $inputinvalid;
 	} else {
 		$lname = trim($_POST["lname"]);
 		$lname_err = "";
-		$lname_valid = $inputvalid;
 	}
 
 	// Validate email address
 	if (empty(trim($_POST["email"]))) {
 		$email_err = "Please enter an email address.";
-		$email_valid = $inputinvalid;
 	} elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
 		$email_err = "Email is invalid. Please enter a valid email address.";
-		$email_valid = $inputinvalid;
 	} else {
 		$email = trim($_POST["email"]);
 		$email_err = "";
-		$email_valid = $inputvalid;
+	}
+
+	// Validate date of birth
+	if (empty(trim($_POST["bday"]))) {
+		$bday_err = "Please enter your birth date";
+	} else {
+		$bday = trim($_POST["bday"]);
+		$bday_err = "";
+	}
+
+	// Validate gender input
+	if (empty(trim($_POST["gender"]))) {
+		$gender_err = "Please enter your gender";
+	} else {
+		$gender = trim($_POST["gender"]);
+		$gender_err = "";
 	}
 
 	// Vaalidate phone number
 	if (empty(trim($_POST["phonenum"]))) {
 		$phonenum_err = "Please enter a phone number.";
-		$phonenum_valid = $inputinvalid;
 	} elseif (!preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", trim($_POST["phonenum"]))) {
 		$phonenum_err = "Please enter a valid phone number.";
-		$phonenum_valid = $inputinvalid;
 	} else {
 		$phonenum = trim($_POST["phonenum"]);
 		$phonenum_err = "";
-		$phonenum_valid = $inputvalid;
 	}
 
 	// Validate address
 	if (empty(trim($_POST["address"]))) {
 		$address_err = "Please enter an address.";
-		$address_valid = $inputinvalid;
 	} else {
 		$address = trim($_POST["address"]);
 		$address_err = "";
-		$address_valid = $inputvalid;
 	}
 
 	// Validate postal code
 	if (empty(trim($_POST["postalcode"]))) {
 		$postalcode_err = "Please enter a postal code.";
-		$postalcode_valid = $inputinvalid;
 	} else {
 		$postalcode = trim($_POST["postalcode"]);
 		$postalcode_err = "";
-		$postalcode_valid = $inputvalid;
 	}
 
 	// Validate healthnum
 	if (empty(trim($_POST["healthnum"]))) {
 		$healthnum_err = "Please enter a healthcard number.";
-		$healthnum_valid = $inputinvalid;
 	} elseif (!preg_match('/^[a-zA-Z0-9-]+$/', trim($_POST["healthnum"]))) {
 		$healthnum_err = "Healthcard number can only contain numbers and hyphens.";
-		$healthnum_valid = $inputinvalid;
 	} elseif (!is_numeric(str_replace("-", "", $_POST["healthnum"])) || strlen(str_replace("-", "", $_POST["healthnum"])) != 10) {
 		$healthnum_err = "Invalid healthcard number.";
-		$healthnum_valid = $inputinvalid;
 	} else {
 
 		// Prepare a select statement
@@ -167,11 +166,9 @@ if (isset($_POST['save-profile'])) {
 			if ($stmt->execute()) {
 				if ($stmt->rowCount() > 0) {
 					$healthnum_err = "An existing account already has this healthcard number.";
-					$healthnum_valid = $inputinvalid;
 				} else {
 					$healthnum = trim($_POST["healthnum"]);
 					$healthnum_err = "";
-					$healthnum_valid = $inputvalid;
 				}
 			} else {
 				echo $error;
@@ -189,7 +186,7 @@ if (isset($_POST['save-profile'])) {
 	if (empty($fname_err) && empty($lname_err) && empty($healthnum_err) && empty($email_err) && empty($address_err) && empty($phonenum_err) && empty($postalcode_err)) {
 		// * Write query statement
 		$sql = "UPDATE users
-						SET fname = :fname, lname = :lname, username = :healthnum, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
+						SET fname = :fname, lname = :lname, username = :healthnum, birthdate = :bday, gender = :gender, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
 						WHERE id = :id;
 						UPDATE jvp
 						SET healthnum = :healthnum, fname = :fname, lname = :lname
@@ -209,6 +206,8 @@ if (isset($_POST['save-profile'])) {
 			$stmt->bindParam(":address", $param_address, PDO::PARAM_STR);
 			$stmt->bindParam(":postalcode", $param_postalcode, PDO::PARAM_STR);
 			$stmt->bindParam(":biography", $param_biography, PDO::PARAM_STR);
+			$stmt->bindParam(':bday', $param_bday, PDO::PARAM_STR);
+			$stmt->bindParam(':gender', $param_gender, PDO::PARAM_STR);
 
 			// * Give parameters values
 			$param_id = $id;
@@ -220,6 +219,8 @@ if (isset($_POST['save-profile'])) {
 			$param_address = $address;
 			$param_postalcode = $postalcode;
 			$param_biography = $biography;
+			$param_gender = $gender;
+			$param_bday = $bday;
 
 			// * Attempt to execute query 
 			if ($stmt->execute()) {
@@ -246,32 +247,25 @@ if (isset($_POST['save-profile'])) {
 	// Verify old password
 	if (password_verify($old_password, $hashed_password)) {
 		$old_password_err = "";
-		$old_pass_validation = $inputvalid;
 		echo "pp";
 	} else {
 		$old_password_err = "Password is incorrect.";
-		$old_pass_validation = $inputinvalid;
 	}
 
 	// Validate new password
 	if (strlen($new_password) < 6) {
 		$new_password_err = 'Password must be at least 6 characters';
-		$new_pass_validation = $inputinvalid;
 	} else if (password_verify($new_password, $hashed_password)) {
 		$new_password_err = 'Password cannot be your previous password';
-		$new_pass_validation = $inputinvalid;
 	} else {
 		$new_password_err = "";
-		$new_pass_validation = $inputvalid;
 	}
 
 	// Confirm that passwords match
 	if ($new_password != $confirm_new_password) {
 		$confirm_new_password_err = "Passwords do not match.";
-		$confirm_new_pass_validation = $inputinvalid;
 	} else {
 		$confirm_new_password_err = "";
-		$confirm_new_pass_validation = $inputvalid;
 	}
 
 	// Execute change password query if error variables are empty => means that all fields are valid
@@ -507,14 +501,14 @@ if (isset($_POST['save-profile'])) {
 						<div class="row">
 							<div class="col-sm-6">
 								<label>First Name:</label>
-								<input type="text" name="fname" class="form-control <?= $fname_valid ?>" value="<?= $fname; ?>" required>
+								<input type="text" name="fname" class="form-control <?= (!empty($fname_err) || empty($fname)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $fname; ?>" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $fname_err ?></div>
 							</div>
 
 							<div class="col-sm-6">
 								<label>Last Name:</label>
-								<input type="text" name="lname" class="form-control <?= $lname_valid ?>" value="<?= $lname; ?>" required>
+								<input type="text" name="lname" class="form-control <?= (!empty($lname_err) || empty($lname)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $lname; ?>" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $lname_err ?></div>
 							</div>
@@ -522,15 +516,35 @@ if (isset($_POST['save-profile'])) {
 
 						<div class="row">
 							<div class="col-sm-6">
+								<label for="bday">Birth Date</label>
+								<input type="date" class="form-control <?= (!empty($bday_err) || empty($bday)) ? 'is-invalid' : 'is-valid'; ?>" id="bday" placeholder="Birth Date" name="bday" value="<?= $bday; ?>" required>
+								<div class="valid-feedback"></div>
+								<div class="invalid-feedback"><?= $lname_err ?></div>
+							</div>
+
+							<div class="col-sm-6">
+								<label for="gender">Gender</label>
+								<select name="gender" class="form-control <?= (!empty($gender_err) || empty($gender)) ? 'is-invalid' : 'is-valid'; ?>" required>
+									<option <?= $gender == "" ? $selected : "" ?>></option>
+									<option value="male" <?= $gender == "male" ? $selected : "" ?>>Male</option>
+									<option value="female" <?= $gender == "female" ? $selected : "" ?>>Female</option>
+									<option value="other" <?= $gender == "other" ? $selected : "" ?>>Other</option>
+								</select>
+
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-6">
 								<label>Email Address:</label>
-								<input type="email" name="email" class="form-control  <?= $email_valid ?>" value="<?= $email; ?>" placeholder="example@email.com" required>
+								<input type="email" name="email" class="form-control <?= (!empty($email_err) || empty($email)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $email; ?>" placeholder="example@email.com" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $email_err ?></div>
 							</div>
 
 							<div class="col-sm-6">
 								<label>Healthcard Number:</label>
-								<input type="text" name="healthnum" id="healthnum" class="form-control <?= $healthnum_valid ?>" value="<?= $healthnum; ?>" maxlength="12" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]" placeholder="ex. 1234-567-890" required>
+								<input type="text" name="healthnum" id="healthnum" class="form-control <?= (!empty($healthnum_err) || empty($healthnum)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $healthnum; ?>" maxlength="12" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]" placeholder="ex. 1234-567-890" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $healthnum_err ?></div>
 							</div>
@@ -539,14 +553,14 @@ if (isset($_POST['save-profile'])) {
 						<div class="row">
 							<div class="col-sm-6">
 								<label>Phone Number:</label>
-								<input type="text" name="phonenum" class="form-control <?= $phonenum_valid ?>" value="<?= $phonenum ?>" required>
+								<input type="text" name="phonenum" class="form-control <?= (!empty($phonenum_err) || empty($phonenum)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $phonenum ?>" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $phonenum_err ?></div>
 							</div>
 
 							<div class="col-sm-6">
 								<label>Postal Code:</label>
-								<input type="text" id="postalcode" name="postalcode" class="form-control <?= $postalcode_valid ?>" value="<?= $postalcode; ?>" maxlength="7" pattern="[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]" placeholder="ex. A0A 0A0" required>
+								<input type="text" id="postalcode" name="postalcode" class="form-control <?= (!empty($postalcode_err) || empty($postalcode)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $postalcode; ?>" maxlength="7" pattern="[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]" placeholder="ex. A0A 0A0" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $postalcode_err ?></div>
 							</div>
@@ -555,7 +569,7 @@ if (isset($_POST['save-profile'])) {
 						<div class="row g-1">
 							<div class="col-sm">
 								<label>Address:</label>
-								<input type="text" name="address" class="form-control <?= $address_valid ?>" value="<?= $address ?>" required>
+								<input type="text" name="address" class="form-control <?= (!empty($address_err) || empty($address)) ? 'is-invalid' : 'is-valid'; ?>" value="<?= $address ?>" required>
 								<div class="valid-feedback"></div>
 								<div class="invalid-feedback"><?= $address_err ?></div>
 							</div>
@@ -590,21 +604,21 @@ if (isset($_POST['save-profile'])) {
 						<h3>Change your password</h3>
 						<div class="row g-1">
 							<label class="col-sm-6">Old Password:</label>
-							<input type="password" class="form-control col-sm-6 <?= $old_pass_validation ?>" name="old-password" value="<?= $old_password ?>" required>
+							<input type="password" class="form-control col-sm-6 <?= (!empty($old_password_err) || empty($old_password)) ? 'is-invalid' : 'is-valid'; ?>" name="old-password" value="<?= $old_password ?>" required>
 							<span class="valid-feedback">Password is correct!</span>
 							<span class="invalid-feedback"><?= $old_password_err ?></span>
 						</div>
 
 						<div class="row g-1">
 							<label class="col-sm-6">New Password:</label>
-							<input type="password" class="form-control col-sm-6 <?= $new_pass_validation ?>" name="new-password" value="<?= $new_password ?>" required>
+							<input type="password" class="form-control col-sm-6 <?= (!empty($new_password_err) || empty($new_password)) ? 'is-invalid' : 'is-valid'; ?>" name="new-password" value="<?= $new_password ?>" required>
 							<div class="valid-feedback">Password is valid!</div>
 							<div class="invalid-feedback"><?= $new_password_err ?></div>
 						</div>
 
 						<div class="row g-1">
 							<label class="col-sm-6">Confirm New Password:</label>
-							<input type="password" class="form-control col-sm-6 <?= $confirm_new_pass_validation ?>" name="confirm-password" value="<?= $confirm_new_password ?>" required>
+							<input type="password" class="form-control col-sm-6 <?= (!empty($confirm_new_password_err) || empty($confirm_new_password)) ? 'is-invalid' : 'is-valid'; ?>" name="confirm-password" value="<?= $confirm_new_password ?>" required>
 							<div class="valid-feedback">Password matches!</div>
 							<div class="invalid-feedback"><?= $confirm_new_password_err ?></div>
 						</div>

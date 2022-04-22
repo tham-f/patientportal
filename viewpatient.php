@@ -15,7 +15,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 }
 
 // Declare variables 
-$fname = $lname = "";
+$fname = $lname = $gender = $bday = "";
 $id = $healthnum = "";
 $email = $phonenum = $address = $postalcode = "";
 $biography = "Biography here...";
@@ -24,6 +24,7 @@ $id = "";
 $error = "Oops! Something went wrong.";
 $inputvalid = "is-valid";
 $inputinvalid = "is-invalid";
+$selected = " selected";
 
 if (is_numeric(trim($_GET['PatientID']))) {
 	$id = trim($_GET['PatientID']);
@@ -105,6 +106,24 @@ if (isset($_POST['delete-patient'])) {
 		$lname = trim($_POST["lname"]);
 		$lname_err = "";
 		$lname_valid = $inputvalid;
+	}
+
+	// Validate date of birth
+	if (empty(trim($_POST["bday"]))) {
+		$bday_err = "Please enter your birth date";
+	} else {
+		$bday = trim($_POST["bday"]);
+		$bday_err = "";
+		$bday_valid = $inputvalid;
+	}
+
+	// Validate gender input
+	if (empty(trim($_POST["gender"]))) {
+		$gender_err = "Please enter your gender";
+	} else {
+		$gender = trim($_POST["gender"]);
+		$gender_err = "";
+		$gender_valid = $inputvalid;
 	}
 
 	// Validate email address
@@ -202,7 +221,7 @@ if (isset($_POST['delete-patient'])) {
 	if (empty($fname_err) && empty($lname_err) && empty($healthnum_err) && empty($email_err) && empty($address_err) && empty($phonenum_err) && empty($postalcode_err)) {
 		// * Write update query for user, jvp, and medicalhistory tables
 		$sql = "UPDATE users
-						SET fname = :fname, lname = :lname, username = :healthnum, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
+						SET fname = :fname, lname = :lname, username = :healthnum, birthdate = :bday, gender = :gender, email = :email, phonenumber = :phonenum, address = :address, postalcode = :postalcode, biography = :biography
 						WHERE id = :id;
 						UPDATE jvp
 						SET healthnum = :healthnum, fname = :fname, lname = :lname
@@ -223,7 +242,10 @@ if (isset($_POST['delete-patient'])) {
 			$stmt->bindParam(':address', $param_address, PDO::PARAM_STR);
 			$stmt->bindParam(':postalcode', $param_postalcode, PDO::PARAM_STR);
 			$stmt->bindParam(':biography', $param_biography, PDO::PARAM_STR);
+			$stmt->bindParam(':bday', $param_bday, PDO::PARAM_STR);
+			$stmt->bindParam(':gender', $param_gender, PDO::PARAM_STR);
 
+			// * Give paramters values
 			$param_id = $id;
 			$param_fname = $fname;
 			$param_lname = $lname;
@@ -233,6 +255,8 @@ if (isset($_POST['delete-patient'])) {
 			$param_address = $address;
 			$param_postalcode = $postalcode;
 			$param_biography = $biography;
+			$param_gender = $gender;
+			$param_bday = $bday;
 
 			if ($stmt->execute()) {
 				echo "<script>alert('Changes to this profile have been saved!')</script>";
@@ -483,6 +507,23 @@ if (isset($_POST['delete-patient'])) {
 								<div class="form-floating mb-3 mt-3 col">
 									<input type="text" class="form-control form-control-lg" id="lname" placeholder="Last Name" name="lname" value="<?= $lname; ?>" required>
 									<label for="lname">Last Name</label>
+								</div>
+							</div>
+
+							<div class="form-group row g-1">
+								<div class="form-floating mb-3 mt-3 col">
+									<input type="date" class="form-control form-control-lg" id="bday" placeholder="Birth Date" name="bday" value="<?= $bday; ?>" required>
+									<label for="bday">Birth Date</label>
+								</div>
+
+								<div class="form-floating mb-3 mt-3 col">
+									<select name="gender" class="form-control col <?= (!empty($gender_err)) ? 'is-invalid' : ''; ?>" required>
+										<option <?= $gender == "" ? $selected : "" ?>></option>
+										<option value="male" <?= $gender == "male" ? $selected : "" ?>>Male</option>
+										<option value="female" <?= $gender == "female" ? $selected : "" ?>>Female</option>
+										<option value="other" <?= $gender == "other" ? $selected : "" ?>>Other</option>
+									</select>
+									<label for="gender">Gender</label>
 								</div>
 							</div>
 

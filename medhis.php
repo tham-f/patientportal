@@ -21,6 +21,7 @@ $id = htmlspecialchars(trim($_SESSION["id"]));
 $healthnum = htmlspecialchars(trim($_SESSION["username"]));
 $fname = htmlspecialchars(trim($_SESSION["fname"]));
 $lname = htmlspecialchars(trim($_SESSION["lname"]));
+$bday = $gender = "";
 $hpi = $meds = "";
 $alert_color = $alert = "";
 $alert_msg = "Oops! Something went wrong.";
@@ -31,8 +32,8 @@ $selected = " selected";
 $qry = "SELECT * FROM medicalhistory WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
-	// Bind healthcard number to parameter
-	$stmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+	// Bind id number to parameter
+	$stmt->bindParam(":id", $param_id, PDO::PARAM_INT);
 
 	// Set parameters
 	$param_id = $id;
@@ -47,14 +48,24 @@ if ($stmt = $pdo->prepare($qry)) {
 		$rf = $userdata['riskfactors'] ?? "";
 		$pmh = $userdata['pmh'] ?? "";
 		$meds = $userdata['meds'] ?? "";
-
-		$csv_arr = array();
-		$csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI', 'Meds');
-		$csv_arr[] = array($healthnum, $fname, $lname, $cc, $card, $pmh, $rf, $hpi, $meds);
 	} else {
 		echo "Oops, something went wrong. Try again later.";
 	}
 	unset($stmt);
+}
+
+$qry = "SELECT * FROM users WHERE id = :id";
+
+if ($stmt = $pdo->prepare($qry)) {
+	// Bind id number to parameter 
+	$stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+
+	// Attempt to execute query
+	if ($stmt->execute()) {
+		$userdata = $stmt->fetch();
+		$bday = $userdata['birthdate'];
+		$gender = $userdata['gender'];
+	}
 }
 
 // Process form data when form is submitted
@@ -83,8 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 	// Insert title of columns into csv array
 	$csv_arr = array();
-	$csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI');
-	$csv_arr[] = array($healthnum, $fname, $lname, $cc, $card, $pmh, $rf, $hpi);
+	$csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender','chief complaint', 'cardiac history', 'past medical history', 'risk factors', 'HPI', 'Meds', 'Date Submitted');
+	$csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $cc, $card, $pmh, $rf, $hpi, $meds, date("Ymd"));
 
 	// Prepare query statement to update JVP info in database
 	$sql = "INSERT INTO medicalhistory (id, healthnum, fname, lname, chiefcomplaint, card, pmh, riskfactors, hpi, meds)

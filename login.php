@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $username = $row[0]["username"];
             $fname = $row[0]["fname"];
             $lname = $row[0]["lname"];
-            $hashed_password = $row[0][4];
+            $hashed_password = $row[0]["PASSWORD"];
             if (password_verify($password, $hashed_password)) {
               // Password is correct, so start a new session
               session_start();

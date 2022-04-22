@@ -3,6 +3,7 @@ body {
 }
 
 #head {
+  z-index: 1000;
   position: fixed;
   width: 102%;
   top: 0;
@@ -48,6 +49,7 @@ body {
 }
 
 #sidebar {
+  z-index: 1000;
   height: calc(100% - 4.2em);
   top: 4.2em;
   position: absolute;
