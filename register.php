@@ -5,13 +5,14 @@ require_once "config.php";
 // Define variables and initialize with empty values
 $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = $login_err = "";
-$fname = $lname = "";
-$fname_err = $lname_err = "";
+$fname = $lname = $gender = $bday = "";
+$fname_err = $lname_err = $gender_err = $bday = "";
 $email = $email_err = "";
 $phonenum = $phonenum_err = "";
 $address = $address_err = "";
 $postalcode = $postalcode_err = "";
 $alert = "Oops! Something went wrong. Please try again later.";
+$selected = " selected";
 
 // Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -23,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fname_err = "First name can only contain letters.";
   } else {
     $fname = trim($_POST["fname"]);
+    $fname_err = "";
   }
 
   if (empty(trim($_POST["lname"]))) {
@@ -31,6 +33,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $lname_err = "Last name can only contain letters.";
   } else {
     $lname = trim($_POST["lname"]);
+    $lname_err = "";
+  }
+
+  // Validate date of birth
+  if (empty(trim($_POST["bday"]))) {
+    $bday_err = "Please enter your birth date";
+  } else {
+    $bday = trim($_POST["bday"]);
+    $bday_err = "";
   }
 
   // Validate email address
@@ -40,6 +51,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email_err = "Email is invalid. Please enter a valid email address.";
   } else {
     $email = trim($_POST["email"]);
+    $email_err = "";
+  }
+
+  // Validate gender input
+  if (empty(trim($_POST["gender"]))) {
+    $gender_err = "Please enter your gender";
+  } else {
+    $gender = trim($_POST["gender"]);
+    $gender_err = "";
   }
 
   // Vaalidate phone number
@@ -49,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $phonenum_err = "Please enter a valid phone number.";
   } else {
     $phonenum = trim($_POST["phonenum"]);
+    $phonenum_err = "";
   }
 
   // Validate address
@@ -56,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address_err = "Please enter an address.";
   } else {
     $address = trim($_POST["address"]);
+    $address_err = "";
   }
 
   // Validate postal code
@@ -63,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $postalcode_err = "Please enter a postal code.";
   } else {
     $postalcode = trim($_POST["postalcode"]);
+    $postalcode_err = "";
   }
 
   // Validate healthnum
@@ -90,6 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           $username_err = "An account with this healthcard number already exists.";
         } else {
           $username = trim($_POST["username"]);
+          $username_err = "";
         }
       } else {
         echo $alert;
@@ -107,6 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password_err = "Password must have atleast 6 characters.";
   } else {
     $password = trim($_POST["password"]);
+    $password_err = "";
   }
 
   // Validate confirm password
@@ -114,17 +139,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password_err = "Please confirm password.";
   } else {
     $confirm_password = trim($_POST["confirm_password"]);
+    $confirm_password_err = "";
     if (empty($password_err) && ($password != $confirm_password)) {
       $confirm_password_err = "Password did not match.";
     }
   }
 
   // Check input errors before inserting in database
-  if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
+  if (empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($fname_err) && empty($lname_err) && empty($bday_err) && empty($gender_err) && empty($email_err) && empty($phonenum_err) && empty($address_err) && empty($postalcode_err)) {
 
     // Prepare insert statements for 
-    $sql = "INSERT INTO users (fname, lname, username, password, email, phonenumber, address, postalcode) 
-            VALUES (:fname, :lname, :healthnum, :password, :email, :phonenum, :address, :postalcode);";
+    $sql = "INSERT INTO users (fname, lname, username, birthdate, gender, password, email, phonenumber, address, postalcode) 
+            VALUES (:fname, :lname, :healthnum, :bday, :gender, :password, :email, :phonenum, :address, :postalcode);";
 
     if ($stmt = $pdo->prepare($sql)) {
       // Bind variables to the prepared statement as parameters
@@ -136,6 +162,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $stmt->bindParam(":phonenum", $param_phonenum, PDO::PARAM_STR);
       $stmt->bindParam(":address", $param_address, PDO::PARAM_STR);
       $stmt->bindParam(":postalcode", $param_postalcode, PDO::PARAM_STR);
+      $stmt->bindParam(":bday", $param_bday, PDO::PARAM_STR);
+      $stmt->bindParam(":gender", $param_gender, PDO::PARAM_STR);
 
       // Set parameters
       $param_fname = $fname;
@@ -146,6 +174,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $param_phonenum = $phonenum;
       $param_address = $address;
       $param_postalcode = $postalcode;
+      $param_bday = $bday;
+      $param_gender = $gender;
 
       // Attempt to execute the prepared statement
       if ($stmt->execute()) {
@@ -210,18 +240,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
   <script>
-    (function ($, undefined) {
+    (function($, undefined) {
       "use strict";
 
       // When ready.
-      $(function () {
+      $(function() {
 
         var $form = $("#registration");
         var $input1 = $form.find("#healthnum");
         var $input2 = $form.find("#phonenum");
         var $input3 = $form.find("#postalcode");
 
-        $input1.on("keyup", function (event) {
+        $input1.on("keyup", function(event) {
 
           // When user select text in the document, also abort.
           var selection = window.getSelection().toString();
@@ -246,13 +276,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             chunk.push(input.substr(i, split));
           }
 
-          $this.val(function () {
+          $this.val(function() {
             return chunk.join("-").toUpperCase();
           });
 
         });
 
-        $input2.on("keyup", function (event) {
+        $input2.on("keyup", function(event) {
 
           // When user select text in the document, also abort.
           var selection = window.getSelection().toString();
@@ -277,13 +307,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             chunk.push(input.substr(i, split));
           }
 
-          $this.val(function () {
+          $this.val(function() {
             return chunk.join("-").toUpperCase();
           });
 
         });
 
-        $input3.on("keyup", function (event) {
+        $input3.on("keyup", function(event) {
 
           // When user select text in the document, also abort.
           var selection = window.getSelection().toString();
@@ -308,7 +338,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             chunk.push(input.substr(i, split));
           }
 
-          $this.val(function () {
+          $this.val(function() {
             return chunk.join(" ").toUpperCase();
           });
 
@@ -316,7 +346,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       });
     })(jQuery);
   </script>
-  <div id="card" style="width: 700px;">
+
+  <div id="card" style="width: 725px; margin-top: 30px;">
     <div id="card-content">
       <div id="card-title">
         <h2>Patient Portal</h2>
@@ -330,16 +361,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
       ?>
 
-      <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="form" id="registration"
-        name="registration">
+      <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="form" id="registration" name="registration">
         <div class="row">
           <div class="col">
             <label style="padding-top:7px" class="col">
               &nbsp;First Name:
             </label>
             <input type="text" name="fname" class="form-content col
-                      <?= (!empty($fname_err)) ? 'is-invalid' : ''; ?>" value="<?= $fname; ?>"
-              pattern="[a-zA-Z ]{1,}" required>
+                      <?= (!empty($fname_err)) ? 'is-invalid' : ''; ?>" value="<?= $fname; ?>" pattern="[a-zA-Z ]{1,}" required>
             <span class="invalid-feedback"><?= $fname_err; ?></span>
             <div class="form-border"></div>
           </div>
@@ -349,9 +378,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               &nbsp;Last Name:
             </label>
             <input type="text" name="lname" class="form-content col
-                      <?= (!empty($lname_err)) ? 'is-invalid' : ''; ?>" value="<?= $lname; ?>"
-              pattern="[a-zA-Z]{1,}" required>
+                      <?= (!empty($lname_err)) ? 'is-invalid' : ''; ?>" value="<?= $lname; ?>" pattern="[a-zA-Z]{1,}" required>
             <span class="invalid-feedback"><?= $lname_err; ?></span>
+            <div class="form-border"></div>
+          </div>
+
+          <div class="col">
+            <label style="padding-top:7px" class="col">
+              &nbsp;Birth Date:
+            </label>
+            <input type="date" name="bday" class="form-content col
+                      <?= (!empty($bday_err)) ? 'is-invalid' : ''; ?>" value="<?= $bday; ?>" min='1899-01-01' max='9999-12-31' required>
+            <span class="invalid-feedback"><?= $bday_err; ?></span>
             <div class="form-border"></div>
           </div>
         </div>
@@ -362,21 +400,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               &nbsp;Health Card Number
             </label>
             <input type="text" id="healthnum" name="username" class="form-content col
-                      <?= (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?= $username; ?>"
-              placeholder="ex. 1234-567-890" maxlength="12"
-              pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]" required>
+                      <?= (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?= $username; ?>" placeholder="ex. 1234-567-890" maxlength="12" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]" required>
             <span class="invalid-feedback"><?= $username_err; ?></span>
             <div class="form-border"></div>
           </div>
 
           <div class="col">
             <label style="padding-top:7px" class="col">
-              &nbsp;Phone Number:
+              &nbsp;Gender
             </label>
-            <input type="tel" id="phonenum" name="phonenum" class="form-content col
-                      <?= (!empty($phonenum_err)) ? 'is-invalid' : ''; ?>" value="<?= $phonenum; ?>"
-              placeholder="ex. 123-456-7890" maxlength="12" pattern="\d{3}[\-]\d{3}[\-]\d{4}" required>
-            <span class="invalid-feedback"><?= $phonenum_err; ?></span>
+            <select name="gender" class="form-content col <?= (!empty($gender_err)) ? 'is-invalid' : ''; ?>" required>
+              <option <?= $gender == "" ? $selected : "" ?>>Choose one</option>
+              <option value="male" <?= $gender == "male" ? $selected : "" ?>>Male</option>
+              <option value="female" <?= $gender == "female" ? $selected : "" ?>>Female</option>
+              <option value="other" <?= $gender == "other" ? $selected : "" ?>>Other</option>
+            </select>
+            <span class="invalid-feedback"><?= $gender_err; ?></span>
             <div class="form-border"></div>
           </div>
         </div>
@@ -394,12 +433,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           <div class="col">
             <label style="padding-top:7px" class="col">
-              &nbsp;Postal Code
+              &nbsp;Phone Number:
             </label>
-            <input type="text" id="postalcode" name="postalcode" class="form-content col
-                      <?= (!empty($postalcode_err)) ? 'is-invalid' : ''; ?>" value="<?= $postalcode; ?>"
-              pattern="[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]" placeholder="ex. A0A 0A0" maxlength="7" required>
-            <span class="invalid-feedback"><?= $postalcode_err; ?></span>
+            <input type="tel" id="phonenum" name="phonenum" class="form-content col
+                      <?= (!empty($phonenum_err)) ? 'is-invalid' : ''; ?>" value="<?= $phonenum; ?>" placeholder="ex. 123-456-7890" maxlength="12" pattern="\d{3}[\-]\d{3}[\-]\d{4}" required>
+            <span class="invalid-feedback"><?= $phonenum_err; ?></span>
             <div class="form-border"></div>
           </div>
         </div>
@@ -410,9 +448,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               &nbsp;Address
             </label>
             <input type="text" name="address" class="form-content col
-                      <?= (!empty($address_err)) ? 'is-invalid' : ''; ?>" value="<?= $address; ?>"
-              required>
+                      <?= (!empty($address_err)) ? 'is-invalid' : ''; ?>" value="<?= $address; ?>" required>
             <span class="invalid-feedback"><?= $address_err; ?></span>
+            <div class="form-border"></div>
+          </div>
+
+          <div class="col">
+            <label style="padding-top:7px" class="col">
+              &nbsp;Postal Code
+            </label>
+            <input type="text" id="postalcode" name="postalcode" class="form-content col
+                      <?= (!empty($postalcode_err)) ? 'is-invalid' : ''; ?>" value="<?= $postalcode; ?>" pattern="[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]" placeholder="ex. A0A 0A0" maxlength="7" required>
+            <span class="invalid-feedback"><?= $postalcode_err; ?></span>
             <div class="form-border"></div>
           </div>
         </div>
@@ -423,8 +470,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               &nbsp;Password
             </label>
             <input type="password" name="password" class="form-content col
-                      <?= (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?= $password; ?>"
-              required>
+                      <?= (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?= $password; ?>" required>
             <span class="invalid-feedback"><?= $password_err; ?></span>
             <div class="form-border"></div>
           </div>
@@ -434,8 +480,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               &nbsp;Confirm Password
             </label>
             <input type="password" name="confirm_password" class="form-content col
-                      <?= (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>"
-              value="<?= $confirm_password; ?>" required>
+                      <?= (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" value="<?= $confirm_password; ?>" required>
             <span class="invalid-feedback"><?= $confirm_password_err; ?></span>
             <div class="form-border"></div>
           </div>

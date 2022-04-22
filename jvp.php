@@ -45,14 +45,24 @@ if ($stmt = $pdo->prepare($qry)) {
     $hrt = $userdata['heartrate'] ?? "";
     $comments = $userdata['comments'] ?? "";
     $jvp = $userdata['jvp'] ?? "";
-
-    $csv_arr = array();
-    $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Weight', 'Heart Rate', 'JVP', 'Comments');
-    $csv_arr[] = array($healthnum, $fname, $lname, $wgt, $hrt, $jvp, $comments);
   } else {
     echo "Oops, something went wrong. Try again later.";
   }
   unset($stmt);
+}
+
+$qry = "SELECT * FROM users WHERE id = :id";
+
+if ($stmt = $pdo->prepare($qry)) {
+  // Bind id number to parameter 
+  $stmt->bindParam(':id', $param_id, PDO::PARAM_INT);
+
+  // Attempt to execute query
+  if ($stmt->execute()) {
+    $userdata = $stmt->fetch();
+    $bday = $userdata['birthdate'];
+    $gender = $userdata['gender'];
+  }
 }
 
 // Process form data when form is submitted
@@ -87,8 +97,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Insert title of columns into csv array
   $csv_arr = array();
-  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Weight', 'Heart Rate', 'JVP', 'Comments');
-  $csv_arr[] = array($healthnum, $fname, $lname, $wgt, $hrt, $jvp, $comments);
+  $csv_arr[] = array('Healthcard Number', 'First Name', 'Last Name', 'Birth Date', 'Gender', 'Weight', 'Heart Rate', 'JVP', 'Comments', 'Date Submitted');
+  $csv_arr[] = array(str_replace("-", "", $healthnum), $fname, $lname, str_replace("-", "", $bday), $gender, $wgt, $hrt, $jvp, $comments, date("Ymd"));
 
   // Prepare query statement to update JVP info in database
   $sql = "INSERT INTO jvp (id, healthnum, fname, lname, weight, heartrate, jvp, comments)

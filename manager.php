@@ -36,6 +36,8 @@ $statements = ["CREATE TABLE IF NOT EXISTS users(
                   username VARCHAR(12) NOT NULL,
                   fname VARCHAR(255) NOT NULL,
                   lname VARCHAR(255) NOT NULL,
+                  birthdate VARCHAR(10) NOT NULL,
+                  gender TINYTEXT NOT NULL,
                   PASSWORD VARCHAR(255) NOT NULL,
                   address VARCHAR(255) NOT NULL,
                   email VARCHAR(255) NOT NULL,
