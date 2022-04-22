@@ -51,6 +51,7 @@ if ($stmt = $pdo->prepare($qry)) {
   unset($stmt);
 }
 
+// Write query to fetch data from users table
 $qry = "SELECT * FROM users WHERE id = :id";
 
 if ($stmt = $pdo->prepare($qry)) {
